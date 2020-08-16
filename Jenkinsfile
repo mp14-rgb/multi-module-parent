@@ -35,7 +35,9 @@ pipeline {
 						goal = "compile"
 					} else if(currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').size() > 0) { //check if triggered via User 'Build Now'
 						echo "User Trigger"
-						buildAll = true
+						buildAll = true						
+						//use package goal if the triggered by User.
+						goal = "package"
 					} else { //defaults to Push Trigger
 						echo "Push Trigger"
 						//get changes via changelogs so we can know which module should be built
