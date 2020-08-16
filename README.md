@@ -1,0 +1,2 @@
+# multi-module-parent
+Test
