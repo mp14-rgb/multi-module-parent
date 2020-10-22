@@ -1,4 +1,5 @@
 def buildAll = false
+def dependencyModules = []
 def affectedModules = []
 def affectedList
 def goal = "package"
@@ -68,6 +69,27 @@ pipeline {
 						}
 					}
 					
+				}
+			}
+		}
+		stage("get module sequence"){
+			when {
+				expression {
+					return affectedModules.size() > 0
+				}
+			}
+
+			steps {
+				script {
+					def depedentModuleSequence = []
+					def GROUP_ID = "com.demo"
+					//get module depedency sequence via git diff so we can know which module should be built
+					if (isUnix()) {
+						depedentModuleSequence = sh(returnStdout: true, script: "mvn dependency:tree | grep \"${GROUP_ID}\" | while read -r line ; do if grep -q \"< \" <<< \"$line\"; then MODULE_NAME=$(echo $line | awk -F ':| ' '{print $4}'); echo \"Module : $MODULE_NAME\"; elif grep -q \"] +- ${GROUP_ID}\" <<< \"$line\"; then DEPEDENT_MODULE_NAME=$(echo $line | awk -F ':| ' '{print $4}'); echo \"> $DEPEDENT_MODULE_NAME\"; fi done;").trim().split()
+					}
+					else {
+						depedentModuleSequence = bat(returnStdout: true, script: "mvn dependency:tree | grep \"${GROUP_ID}\" | while read -r line ; do if grep -q \"< \" <<< \"$line\"; then MODULE_NAME=$(echo $line | awk -F ':| ' '{print $4}'); echo \"Module : $MODULE_NAME\"; elif grep -q \"] +- ${GROUP_ID}\" <<< \"$line\"; then DEPEDENT_MODULE_NAME=$(echo $line | awk -F ':| ' '{print $4}'); echo \"> $DEPEDENT_MODULE_NAME\"; fi done;").trim().split()
+					}
 				}
 			}
 		}
