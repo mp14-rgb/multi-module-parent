@@ -73,12 +73,6 @@ pipeline {
 			}
 		}
 		stage("get module sequence"){
-			when {
-				expression {
-					return affectedModules.size() > 0
-				}
-			}
-
 			steps {
 				script {
 					def depedentModuleSequence = []
