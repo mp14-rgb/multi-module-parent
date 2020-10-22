@@ -91,7 +91,7 @@ pipeline {
 					def dependentModuleRef = "] +- " + GROUP_ID + ":"
 					
 					depedencyTree.each {d -> 
-						if(d.indexOf(${moduleRef}) > 0) { 
+						if(d.indexOf(moduleRef) > 0) { 
 							moduleName = c.substring(c.indexOf(moduleRef)+moduleRef.length(),c.indexOf(" >"))	
 						} else if(c.indexOf(dependentModuleRef) > 1) {
 							def temp = c.substring(c.indexOf(dependentModuleRef)+dependentModuleRef.length(), c.length());
