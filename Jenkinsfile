@@ -87,8 +87,8 @@ pipeline {
 					}
 					//iterate through changes
 					def moduleName = ""
-					def moduleRef = "< ${GROUP_ID}:"
-					def dependentModuleRef = "] +- ${GROUP_ID}:"
+					def moduleRef = "< " + GROUP_ID + ":"
+					def dependentModuleRef = "] +- " + GROUP_ID + ":"
 					
 					depedencyTree.each {d -> 
 						if(d.indexOf(${moduleRef}) > 0) { 
