@@ -75,14 +75,29 @@ pipeline {
 		stage("get module sequence"){
 			steps {
 				script {
-					def depedentModuleSequence = []
+					def depedencyTree = []
+					def depedentModuleSequence = [:]
 					def GROUP_ID = "com.demo"
 					//get module depedency sequence via git diff so we can know which module should be built
 					if (isUnix()) {
-						depedentModuleSequence = sh(returnStdout: true, script: "mvn dependency:tree | grep \"${GROUP_ID}\"").trim().split()
+						depedencyTree = sh(returnStdout: true, script: "mvn dependency:tree | grep \"${GROUP_ID}\"").trim().split()
 					}
 					else {
-						depedentModuleSequence = bat(returnStdout: true, script: "mvn dependency:tree | grep \"${GROUP_ID}\"").trim().split()
+						depedencyTree = bat(returnStdout: true, script: "mvn dependency:tree | grep \"${GROUP_ID}\"").trim().split()
+					}
+					//iterate through changes
+					def moduleName = ""
+					def moduleRef = "< ${GROUP_ID}:"
+					def dependentModuleRef = "] +- ${GROUP_ID}:"
+					
+					depedencyTree.each {d -> 
+						if(d.indexOf(${moduleRef}) > 0) { 
+							moduleName = c.substring(c.indexOf(moduleRef)+moduleRef.length(),c.indexOf(" >"))	
+						} else if(c.indexOf(dependentModuleRef) > 1) {
+							def temp = c.substring(c.indexOf(dependentModuleRef)+dependentModuleRef.length(), c.length());
+							def dependentModuleName = temp.substring(0, temp.indexOf(":"))
+							depedentModuleSequence.put(moduleName, dependentModuleName)
+						}
 					}
 				}
 			}
