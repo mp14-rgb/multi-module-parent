@@ -169,8 +169,8 @@ pipeline {
 		    steps {
 			script {
 			    def stepsForParallel = [:]
-			    for(int i=0; i < affectedList.size(); i++) {
-				def s = affectedList[i]
+			    for(int i=0; i < affectedModules.size(); i++) {
+				def s = affectedModules[i]
 				def stepName = "Untit Test : ${s}"
 				stepsForParallel[stepName] = transformIntoStage(stepName)
 			    }
