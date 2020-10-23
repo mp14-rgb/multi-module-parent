@@ -76,7 +76,7 @@ pipeline {
 			steps {
 				script {
 					def depedencyTree = []
-					Map depedentModuleSequence = [:].withDefault { key -> return [] }
+					def depedentModuleSequence = [:]
 					def GROUP_ID = "com.demo"
 					//get module depedency sequence via git diff so we can know which module should be built
 					if (isUnix()) {
@@ -92,7 +92,7 @@ pipeline {
 					depedencyTree.each {d -> 
 						if(d.indexOf(moduleRef) > 0) { 
 							moduleName = d.substring(d.indexOf(moduleRef)+moduleRef.length(),d.indexOf(" >"))
-							depedentModuleSequence.get(moduleName)
+							depedentModuleSequence.put(moduleName, [])
 						} else if(d.indexOf(dependentModuleRef) > 1) {
 							def temp = d.substring(d.indexOf(dependentModuleRef)+dependentModuleRef.length(), d.length());
 							def dependentModuleName = temp.substring(0, temp.indexOf(":"))
