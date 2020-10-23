@@ -92,10 +92,11 @@ pipeline {
 					
 					depedencyTree.each {d -> 
 						if(d.indexOf(moduleRef) > 0) { 
-							moduleName = c.substring(c.indexOf(moduleRef)+moduleRef.length(),c.indexOf(" >"))	
-						} else if(c.indexOf(dependentModuleRef) > 1) {
-							def temp = c.substring(c.indexOf(dependentModuleRef)+dependentModuleRef.length(), c.length());
+							moduleName = d.substring(d.indexOf(moduleRef)+moduleRef.length(),d.indexOf(" >"))	
+						} else if(d.indexOf(dependentModuleRef) > 1) {
+							def temp = d.substring(d.indexOf(dependentModuleRef)+dependentModuleRef.length(), d.length());
 							def dependentModuleName = temp.substring(0, temp.indexOf(":"))
+							echo "Depedent Module : ${moduleName} - ${dependentModuleName}"
 							depedentModuleSequence.put(moduleName, dependentModuleName)
 						}
 					}
