@@ -96,7 +96,7 @@ pipeline {
 						} else if(d.indexOf(dependentModuleRef) > 1) {
 							def temp = d.substring(d.indexOf(dependentModuleRef)+dependentModuleRef.length(), d.length());
 							def dependentModuleName = temp.substring(0, temp.indexOf(":"))
-							echo "Depedent Module : ${moduleName} - ${dependentModuleName}"
+							println("Depedent Module : " + moduleName +" - " + dependentModuleName)
 							depedentModuleSequence.put(moduleName, dependentModuleName)
 						}
 					}
