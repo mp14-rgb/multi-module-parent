@@ -14,7 +14,11 @@ def transformIntoStage(stageName) {
             wrap([$class: 'TimestamperBuildWrapper']) {
                 echo "Element: $stageName"
                 script {
-                        echo "Element: $stageName"
+			if (isUnix()) {
+				sh(returnStdout: true, script: "echo ${$stageName}")
+			} else {
+				bat(returnStdout: true, script: "echo ${$stageName}")
+			}
                 }
             }
         } // ts / node
