@@ -145,6 +145,28 @@ pipeline {
 				}
 
 			}
-		}	
+		}
+		stage('Dynamic Stages') {
+			agent {node 'nodename'}
+			steps {
+				affectedList.each { module ->  
+					String action = "${operation}:${module}"  
+
+					echo("---- ${action.toUpperCase()} ----")        
+					String command = "echo ${action}"                   
+
+					// here is the trick           
+					script {
+						stage(module) {
+							if (isUnix()) {
+								sh command
+							} else {
+								bat command
+							}
+						}
+					}
+				}
+			}
+		}
 	}	
 }
