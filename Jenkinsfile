@@ -80,10 +80,10 @@ pipeline {
 					def GROUP_ID = "com.demo"
 					//get module depedency sequence via git diff so we can know which module should be built
 					if (isUnix()) {
-						depedencyTree = sh(returnStdout: true, script: "mvn dependency:tree | grep \"${GROUP_ID}\"").trim().split()
+						depedencyTree = sh(returnStdout: true, script: "mvn dependency:tree | grep ${GROUP_ID}").trim().split()
 					}
 					else {
-						depedencyTree = bat(returnStdout: true, script: "mvn dependency:tree | grep \"${GROUP_ID}\"").trim().split()
+						depedencyTree = bat(returnStdout: true, script: "mvn dependency:tree | grep ${GROUP_ID}").trim().split()
 					}
 					//iterate through changes
 					def moduleName = ""
