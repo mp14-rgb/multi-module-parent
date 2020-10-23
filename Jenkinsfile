@@ -147,9 +147,10 @@ pipeline {
 			}
 		}
 		stage('Dynamic Stages') {
-			agent {node 'nodename'}
-			steps {
-				affectedList.each { module ->  
+		    agent {node 'nodename'}
+		    steps {
+			script {
+			    affectedList.each { module ->  
 					String action = "${operation}:${module}"  
 
 					echo("---- ${action.toUpperCase()} ----")        
@@ -167,6 +168,7 @@ pipeline {
 					}
 				}
 			}
+		    }
 		}
 	}	
 }
