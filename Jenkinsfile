@@ -3,6 +3,24 @@ def dependencyModules = []
 def affectedModules = []
 def affectedList
 def goal = "package"
+// Take the string and echo it.
+def transformIntoStage(stageName) {
+    // We need to wrap what we return in a Groovy closure, or else it's invoked
+    // when this method is called, not when we pass it to parallel.
+    // To do this, you need to wrap the code below in { }, and either return
+    // that explicitly, or use { -> } syntax.
+    return {
+        stage (stageName) {
+            wrap([$class: 'TimestamperBuildWrapper']) {
+                echo "Element: $stageName"
+                script {
+                        echo "Element: $stageName"
+                }
+            }
+        } // ts / node
+        
+    } // closure
+}
 pipeline {
 	
 	agent any
@@ -146,27 +164,18 @@ pipeline {
 
 			}
 		}
-		stage('Dynamic Stages') {
+		stage('Dynamic Unit Test Stages') {
 		    agent {node 'nodename'}
 		    steps {
 			script {
-			    affectedList.each { module ->  
-					String action = "${operation}:${module}"  
-
-					echo("---- ${action.toUpperCase()} ----")        
-					String command = "echo ${action}"                   
-
-					// here is the trick           
-					script {
-						stage(module) {
-							if (isUnix()) {
-								sh command
-							} else {
-								bat command
-							}
-						}
-					}
-				}
+			    def stepsForParallel = [:]
+			    for(int i=0; i < affectedList.size(); i++) {
+				def s = affectedList[i]
+				def stepName = "Untit Test : ${s}"
+				stepsForParallel[stepName] = transformIntoStage(stepName)
+			    }
+			    stepsForParallel['failFast'] = false
+			    parallel stepsForParallel
 			}
 		    }
 		}
