@@ -211,21 +211,21 @@ pipeline {
 // Create List of parallel stagesfor execution
 def prepareParallelStages(stageName, affectedModuleList) {
 	def stagesList = []
-	def i=0
+	def i=0, j=0
 	def stageListName
-	def possibleParallelExecutionMap = [:]
 	for (name in affectedModuleList ) {
 		if(i % 5 == 0){
-			def parallelExecutionMap = [:]
-			parallelExecutionMap.putAll(possibleParallelExecutionMap)
-			stagesList.add(parallelExecutionMap)
+			if(i>0){
+				j++
+			}
 			stageListName = "${stageName} ${i/5}"
-			possibleParallelExecutionMap = [:]
-			possibleParallelExecutionMap.put(stageListName, [])
+			def parallelExecutionMap = [:]
+			parallelExecutionMap.put(stageListName, [])
+			stagesList.add(j, parallelExecutionMap)
 		}
 		def n = "${stageName} : ${name} ${i}"
 		println("stageListName : " + stageListName)
-		possibleParallelExecutionMap.get(stageListName).add(prepareStage(n))
+		stagesList.get(j).get(stageListName).add(prepareStage(n))
 		i++
 	}
 	return stagesList
