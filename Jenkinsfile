@@ -169,13 +169,13 @@ pipeline {
 			}
 			steps {
 				script {
-					for (its in integrationTestStages) {
+					for (integrationTests in integrationTestStages) {
 					    if (runParallel) {
-					    	parallel(its)
+					    	parallel(integrationTests)
 					    } else {
 					    	// run serially (nb. Map is unordered! )
-					    	for (it in its.values()) {
-							it.call()
+					    	for (integrationTest in integrationTests.values()) {
+							integrationTest.call()
 					    	}
 					    }
 					}
