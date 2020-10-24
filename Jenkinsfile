@@ -212,23 +212,25 @@ pipeline {
 def prepareParallelStages(stageName, affectedModuleList) {
 	def stagesList = []
 	def i=0
-	def spliitedStageName
+	def stageListName
 	def parallelExecutionMap = [:]
 	for (name in affectedModuleList ) {
 		if(i % 5 == 0){
-			spliitedStageName = "${stageName} ${i/5}"
+			stagesList.add(parallelExecutionMap)
+			stageListName = "${stageName} ${i/5}"
 			parallelExecutionMap = [:]
 			parallelExecutionMap.put(spliitedStageName, [])
 		}
 		def n = "${stageName} : ${name} ${i}"
+		println("stageListName : " + stageListName)
 		parallelExecutionMap.get(spliitedStageName).add(prepareStage(n))
-		stagesList.add(parallelExecutionMap)
 		i++
 	}
 	return stagesList
 }
 
 def prepareStage(String name) {
+	println("name : " + name)
 	return {
 		stage("Build stage:${name}") {
 			println("Building ${name}")
