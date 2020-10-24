@@ -232,7 +232,6 @@ def prepareParallelStages(stageName, affectedModuleList) {
 }
 
 def prepareStage(String name) {
-	println("name : " + name)
 	return {
 		stage("Build stage:${name}") {
 			println("Building ${name}")
