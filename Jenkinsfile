@@ -3,6 +3,9 @@ def dependencyModules = []
 def affectedModules = []
 def affectedList
 def goal = "package"
+def runParallel = true
+def buildStages
+
 // Take the string and echo it.
 def transformIntoStage(stageName) {
     // We need to wrap what we return in a Groovy closure, or else it's invoked
@@ -39,6 +42,46 @@ pipeline {
         	jdk 'JDK8' 
     	}
 	stages {
+		stage('Initialise') {
+			steps {
+				script {
+				    // Set up List<Map<String,Closure>> describing the builds
+				    buildStages = prepareBuildStages()
+				    println("Initialised pipeline.")
+				}
+			}
+		  }
+		//this stage will build all if the flag buildAll = true
+		stage("build all") {
+			when {
+				expression {
+					return runParallel 
+				}
+			}
+			steps {
+				script {
+					for (builds in buildStages) {
+					    if (runParallel) {
+					      parallel(builds)
+					    } else {
+					      // run serially (nb. Map is unordered! )
+					      for (build in builds.values()) {
+						build.call()
+					      }
+					    }
+					}
+				}
+
+			}
+		}
+
+		  stage('Finish') {
+			  steps {
+				script {
+		      			println('Build complete.')
+				}
+			  }
+		  }
 		//this stage will get all the files that were modified
 		stage("get diff") {
 			steps {
@@ -183,28 +226,29 @@ pipeline {
 			}
 		    }
 		}
-		stage('unit test') {
-			parallel([
-			    hello: {
-				echo "hello"
-			    },
-			    world: {
-				echo "world"
-			    }
-			])
-		    }
-
-		    stage('build') {
-			def stages = [:]
-
-			stages["mac"] = {
-			    echo "build for mac"
-			}
-			stages["linux"] = {
-			    echo "build for linux"
-			}
-
-			parallel(stages)
-		    }
 	}	
+}
+
+// Create List of build stages to suit
+def prepareBuildStages() {
+	def buildStagesList = []
+
+	for (i=1; i<5; i++) {
+		def buildParallelMap = [:]
+		for (name in [ 'one', 'two', 'three' ] ) {
+			def n = "${name} ${i}"
+			buildParallelMap.put(n, prepareOneBuildStage(n))
+		}
+		buildStagesList.add(buildParallelMap)
+	}
+	return buildStagesList
+}
+
+def prepareOneBuildStage(String name) {
+	return {
+		stage("Build stage:${name}") {
+			println("Building ${name}")
+			sh(script:'sleep 5', returnStatus:true)
+		}
+	}
 }
