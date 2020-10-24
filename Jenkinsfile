@@ -145,6 +145,7 @@ pipeline {
 					else {
 						depedencyTree = bat(returnStdout: true, script: "mvn dependency:tree | grep ${GROUP_ID}").trim().split()
 					}
+					println(depedencyTree)
 					//iterate through changes
 					def moduleName = ""
 					def moduleRef = "< " + GROUP_ID + ":"
