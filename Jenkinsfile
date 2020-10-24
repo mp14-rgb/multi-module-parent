@@ -183,5 +183,28 @@ pipeline {
 			}
 		    }
 		}
+		stage('unit test') {
+			parallel([
+			    hello: {
+				echo "hello"
+			    },
+			    world: {
+				echo "world"
+			    }
+			])
+		    }
+
+		    stage('build') {
+			def stages = [:]
+
+			stages["mac"] = {
+			    echo "build for mac"
+			}
+			stages["linux"] = {
+			    echo "build for linux"
+			}
+
+			parallel(stages)
+		    }
 	}	
 }
