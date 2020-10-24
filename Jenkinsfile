@@ -3,7 +3,7 @@ def dependencyModules = []
 def affectedModules = []
 def affectedList
 def goal = "package"
-def runParallel = false
+def runParallel = true
 def buildStages
 
 // Take the string and echo it.
