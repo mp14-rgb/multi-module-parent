@@ -2,6 +2,14 @@ def buildAll = false
 def affectedModules = []
 def affectedList
 def goal = "package"
+
+// could use eg. params.parallel build parameter to choose parallel/serial 
+def runParallel = true
+
+def unitTestStages
+def integrationTestStages
+def deployITStages
+
 pipeline {
 	
 	agent any
@@ -72,6 +80,20 @@ pipeline {
 				}
 			}
 		}
+		stage('Initialise') {
+			steps {
+				script {
+				    	// Set up List<Map<String,Closure>> describing the builds
+					unitTestStages = prepareParallelStages("UnitTest", affectedModules)
+					println("unitTestStages : " + unitTestStages)
+					integrationTestStages = prepareParallelStages("IntegrationTest", affectedModules)
+					println("integrationTestStages : " + integrationTestStages)
+					deployITStages = prepareParallelStages("DeployIT", affectedModules)
+					println("deployITStages : " + deployITStages)
+				    	println("Initialised pipeline.")
+				}
+			}
+		  }
 		//this stage will build all if the flag buildAll = true
 		stage("build all") {
 			when {
@@ -115,40 +137,33 @@ pipeline {
 
 			}
 		}
-		
-		stage("get module sequence"){
-			steps {
-				script {
-					def depedencyTree = []
-					def depedentModuleSequence = [:]
-					def GROUP_ID = "com.demo"
-					//get module depedency sequence via git diff so we can know which module should be built
-					if (isUnix()) {
-						depedencyTree = sh(returnStdout: true, script: "mvn dependency:tree | grep ${GROUP_ID}").trim().split()
-					}
-					else {
-						depedencyTree = bat(returnStdout: true, script: "mvn dependency:tree | grep ${GROUP_ID}").trim().split()
-					}
-					println("depedencyTree : " + depedencyTree)
-					//iterate through changes
-					def moduleName = ""
-					def moduleRef = "< " + GROUP_ID + ":"
-					def dependentModuleRef = "] +- " + GROUP_ID + ":"
-					depedencyTree.each {d -> 
-						if(d.indexOf(moduleRef) > 0) { 
-							moduleName = d.substring(d.indexOf(moduleRef)+moduleRef.length(),d.indexOf(" >"))
-							println("moduleName : " + moduleName)
-							depedentModuleSequence.put(moduleName, [])
-						} else if(d.indexOf(dependentModuleRef) > 1) {
-							def temp = d.substring(d.indexOf(dependentModuleRef)+dependentModuleRef.length(), d.length());
-							def dependentModuleName = temp.substring(0, temp.indexOf(":"))
-							println("Depedent Module : " + moduleName +" - " + dependentModuleName)
-							depedentModuleSequence.get(moduleName).add(dependentModuleName)
-						}
-						println("depedentModuleSequence : " + depedentModuleSequence)
-					}
-				}
-			}
-		}
 	}	
+}
+// Create List of parallel stagesfor execution
+def prepareParallelStages(stageName, affectedModuleList) {
+	def stagesList = []
+	def i=0
+	def spliitedStageName
+	def parallelExecutionMap = [:]
+	for (name in affectedModuleList ) {
+		if(i % 5 == 0){
+			spliitedStageName = "${stageName} ${i/5}"
+			parallelExecutionMap = [:]
+			parallelExecutionMap.put(spliitedStageName, [])
+		}
+		def n = "${stageName} : ${name} ${i}"
+		parallelExecutionMap.get(spliitedStageName).add(prepareStage(n))
+		stagesList.add(parallelExecutionMap)
+		i++
+	}
+	return stagesList
+}
+
+def prepareStage(String name) {
+	return {
+		stage("Build stage:${name}") {
+			println("Building ${name}")
+			sh(script:'sleep 5', returnStatus:true)
+		}
+	}
 }
