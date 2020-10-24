@@ -67,7 +67,8 @@ pipeline {
 							
 						}
 					}
-					
+					println("Changes : " + changes)
+					println("affectedModules : " + affectedModules)
 				}
 			}
 		}
