@@ -7,9 +7,9 @@ def goal = "package"
 // could use eg. params.parallel build parameter to choose parallel/serial 
 def runParallel = true
 
-def unitTestStages
-def integrationTestStages
-def deployITStages
+def unitTestStages = []
+def integrationTestStages = []
+def deployITStages = []
 
 pipeline {
 	
