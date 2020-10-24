@@ -219,11 +219,11 @@ def prepareParallelStages(stageName, affectedModuleList) {
 			stagesList.add(parallelExecutionMap)
 			stageListName = "${stageName} ${i/5}"
 			parallelExecutionMap = [:]
-			parallelExecutionMap.put(spliitedStageName, [])
+			parallelExecutionMap.put(stageListName, [])
 		}
 		def n = "${stageName} : ${name} ${i}"
 		println("stageListName : " + stageListName)
-		parallelExecutionMap.get(spliitedStageName).add(prepareStage(n))
+		parallelExecutionMap.get(stageListName).add(prepareStage(n))
 		i++
 	}
 	return stagesList
