@@ -137,6 +137,75 @@ pipeline {
 
 			}
 		}
+		//this stage will run unit test for the affected modules only if unitTestStages.size() > 0
+		stage("UnitTest stages") {
+			when {
+				expression {
+					return unitTestStages.size() > 0
+				}
+			}
+			steps {
+				script {
+					for (unitTests in unitTestStages) {
+					    if (runParallel) {
+					    	parallel(unitTests)
+					    } else {
+					    	// run serially (nb. Map is unordered! )
+					    	for (unitTest in unitTests.values()) {
+							unitTest.call()
+					    	}
+					    }
+					}
+				}
+
+			}
+		}
+		//this stage will run unit test for the affected modules only if integrationTestStages.size() > 0
+		stage("IntegrationTest stages") {
+			when {
+				expression {
+					return integrationTestStages.size() > 0
+				}
+			}
+			steps {
+				script {
+					for (its in integrationTestStages) {
+					    if (runParallel) {
+					    	parallel(its)
+					    } else {
+					    	// run serially (nb. Map is unordered! )
+					    	for (it in its.values()) {
+							it.call()
+					    	}
+					    }
+					}
+				}
+
+			}
+		}
+		//this stage will run unit test for the affected modules only if deployITStages.size() > 0
+		stage("deployITStages stages") {
+			when {
+				expression {
+					return deployITStages.size() > 0
+				}
+			}
+			steps {
+				script {
+					for (deployITs in deployITStages) {
+					    if (runParallel) {
+					    	parallel(deployITs)
+					    } else {
+					    	// run serially (nb. Map is unordered! )
+					    	for (deployIT in deployITs.values()) {
+							deployIT.call()
+					    	}
+					    }
+					}
+				}
+
+			}
+		}
 	}	
 }
 // Create List of parallel stagesfor execution
