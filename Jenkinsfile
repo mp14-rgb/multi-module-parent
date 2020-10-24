@@ -3,7 +3,7 @@ def dependencyModules = []
 def affectedModules = []
 def affectedList
 def goal = "package"
-def runParallel = true
+def runParallel = false
 def buildStages
 
 // Take the string and echo it.
@@ -52,12 +52,7 @@ pipeline {
 			}
 		  }
 		//this stage will build all if the flag buildAll = true
-		stage("build parallel") {
-			when {
-				expression {
-					return runParallel 
-				}
-			}
+		stage("build stages") {
 			steps {
 				script {
 					for (builds in buildStages) {
