@@ -82,6 +82,11 @@ pipeline {
 			}
 		}
 		stage('clean') {
+			when {
+				expression {
+					return buildAll || affectedModules.size() > 0
+				}
+			}
 			steps {
 				script {
 					if(buildAll){
@@ -107,14 +112,19 @@ pipeline {
 			}
 		 }
 		stage('Initialise') {
+			when {
+				expression {
+					return impactedModules.size() > 0
+				}
+			}
 			steps {
 				script {
 				    	// Set up List<Map<String,Closure>> describing the builds
-					unitTestStages = prepareParallelStages("UnitTest", affectedModules)
+					unitTestStages = prepareParallelStages("UnitTest", impactedModules)
 					println("unitTestStages : " + unitTestStages)
-					integrationTestStages = prepareParallelStages("IntegrationTest", affectedModules)
+					integrationTestStages = prepareParallelStages("IntegrationTest", impactedModules)
 					println("integrationTestStages : " + integrationTestStages)
-					deployITStages = prepareParallelStages("DeployIT", affectedModules)
+					deployITStages = prepareParallelStages("DeployIT", impactedModules)
 					println("deployITStages : " + deployITStages)
 				    	println("Initialised pipeline.")
 				}
