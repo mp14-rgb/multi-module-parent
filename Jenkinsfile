@@ -148,7 +148,8 @@ pipeline {
 				script {
 					for (unitTests in unitTestStages) {
 					    if (runParallel) {
-					    	parallel(unitTests)
+						    unitTests.failFast = true
+						    parallel(unitTests)
 					    } else {
 					    	// run serially (nb. Map is unordered! )
 					    	for (unitTest in unitTests.values()) {
