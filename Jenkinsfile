@@ -52,7 +52,7 @@ pipeline {
 			}
 		  }
 		//this stage will build all if the flag buildAll = true
-		stage("build all") {
+		stage("build parallel") {
 			when {
 				expression {
 					return runParallel 
