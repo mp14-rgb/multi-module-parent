@@ -99,7 +99,8 @@ pipeline {
 						impactedModules = sh(returnStdout: true, script: "mvn clean -B  -pl ${affectedList} -amd -DskipTests -Pbuild -T 5 | grep com.demo | awk -F \":| \" '{print \$4}'").trim().split()
 					}
 					println("impactedModules : " + impactedModules)
-				    	println("Cleaned impacted modules")
+				    	println("impactedModules.size() : " + impactedModules.size())
+					println("Cleaned impacted modules")
 				}
 			}
 		 }
@@ -112,11 +113,14 @@ pipeline {
 			steps {
 				script {
 				    	// Set up List<Map<String,Closure>> describing the builds
-					unitTestStages = prepareParallelStages("UnitTest", impactedModules)
+					def unitTestCmd = "mvn test -B -T 5 -PunitTest"
+					unitTestStages = prepareParallelStages("Unit Test", unitTestCmd, impactedModules)
 					println("unitTestStages : " + unitTestStages)
-					integrationTestStages = prepareParallelStages("IntegrationTest", impactedModules)
+					def integrationTestCmd = "mvn test -B -T 5 -PintegrationTest"
+					integrationTestStages = prepareParallelStages("Integration Test", integrationTestCmd, impactedModules)
 					println("integrationTestStages : " + integrationTestStages)
-					deployITStages = prepareParallelStages("DeployIT", impactedModules)
+					def deployITCmd = "mvn test -B -T 5 -PdeployIT"
+					deployITStages = prepareParallelStages("Deploy IT", deployITCmd, impactedModules)
 					println("deployITStages : " + deployITStages)
 				    	println("Initialised pipeline.")
 				}
@@ -238,15 +242,15 @@ pipeline {
 	}	
 }
 // Create List of parallel stagesfor execution
-def prepareParallelStages(stageName, impactedModules) {
+def prepareParallelStages(stageName, command, impactedModules) {
 	def stageList = []
 	def i=1
 	def parallelExecutionMap = [:]
-	for (name in impactedModules ) {
-		def n = "${stageName} : ${name} ${i}"
-		parallelExecutionMap.put(n, prepareStage(n))
+	for (impactedModuleName in impactedModules ) {
+		def childStageName = "${stageName} : ${impactedModuleName} ${i}"
+		def script = "${command} -pl ${impactedModuleName}"
+		parallelExecutionMap.put(childStageName, prepareStage(childStageName, command))
 		println("i : " + i)
-		println("impactedModules.size() : " + impactedModules.size())
 		if(i % 5 == 0 || impactedModules.size() == i){
 			def parallelStageMap = [:]
 			parallelStageMap.putAll(parallelExecutionMap)
@@ -260,11 +264,11 @@ def prepareParallelStages(stageName, impactedModules) {
 	return stageList
 }
 
-def prepareStage(String name) {
+def prepareStage(childStageName, command) {
 	return {
-		stage("Build stage:${name}") {
-			println("Building ${name}")
-			sh(script:'sleep 5', returnStatus:true)
+		stage("Build stage:${childStageName}") {
+			println("Building ${childStageName}")
+			sh(script:"${command}", returnStatus:true)
 		}
 	}
 }
