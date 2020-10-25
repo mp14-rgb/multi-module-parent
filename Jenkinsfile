@@ -94,7 +94,7 @@ pipeline {
 						if (isUnix()) {
 							impactedModules = sh(returnStdout: true, script: "mvn clean -B -DskipTests -Pbuild -T 5 | grep 'com.companyname.blogger'").trim().split()
 						} else {
-							impactedModules = bat(returnStdout: true, script: "mvn clean -B -DskipTests -Pbuild -T 5 | 'grep com.companyname.blogger'").trim().split()
+							impactedModules = bat(returnStdout: true, script: "mvn clean -B -DskipTests -Pbuild -T 5 | grep 'com.companyname.blogger'").trim().split()
 						}
 					//} else {
 						//remove duplicate items and separate them using "," delimeter
