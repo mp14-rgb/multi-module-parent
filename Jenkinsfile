@@ -23,7 +23,16 @@ pipeline {
 		booleanParam(name: "parallel", description: 'Enable Prallel Execution', defaultValue: true)
 		booleanParam(name: "RELEASE", description: 'Generate Release', defaultValue: false)
 		choice(name: "DEPLOY_TO", description: 'Deply To Environment', choices: ["", "DEV", "QA2", "STAGE", "QA", "INT", "PRE", "PROD"])
-		steps {
+	}
+
+	//load tools - these should be configured in jenkins global tool configuration
+	 tools { 
+        	maven 'Maven 3.6.3' 
+        	jdk 'JDK8' 
+    	}
+	stages {
+		stage('Parameters'){
+                steps {
                     script {
                     properties([
                             parameters([
@@ -105,14 +114,7 @@ pipeline {
                         ])
                     }
                 }
-	}
-
-	//load tools - these should be configured in jenkins global tool configuration
-	 tools { 
-        	maven 'Maven 3.6.3' 
-        	jdk 'JDK8' 
-    	}
-	stages {
+            }
 		//this stage will get all the files that were modified
 		stage("get diff") {
 			steps {
