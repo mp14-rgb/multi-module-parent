@@ -18,6 +18,11 @@ pipeline {
 	options {
         	disableConcurrentBuilds()
     	}
+	
+	parameters {
+		booleanParam(name: "RELEASE", defaultValue: false)
+		booleanParam(name: "parallel", defaultValue: true)
+	}
 
 	//load tools - these should be configured in jenkins global tool configuration
 	 tools { 
@@ -160,7 +165,7 @@ pipeline {
 					script {
 						// Set up List<Map<String,Closure>> describing the builds
 						def unitTestCmd = "mvn test -B -T 5 -PunitTest"
-						unitTestStages = prepareParallelStages("Unit Test", unitTestCmd, impactedModules)
+						unitTestStages = prepareDynamicStages("Unit Test", unitTestCmd, impactedModules)
 						println("unitTestStages : " + unitTestStages)
 					}
 				    }
@@ -170,7 +175,7 @@ pipeline {
 					script {
 						// Set up List<Map<String,Closure>> describing the builds
 						def integrationTestCmd = "mvn test -B -T 5 -PintegrationTest"
-						integrationTestStages = prepareParallelStages("Integration Test", integrationTestCmd, impactedModules)
+						integrationTestStages = prepareDynamicStages("Integration Test", integrationTestCmd, impactedModules)
 						println("integrationTestStages : " + integrationTestStages)
 					}
 				    }
@@ -180,7 +185,7 @@ pipeline {
 					script {
 						// Set up List<Map<String,Closure>> describing the builds
 						def deployITCmd = "mvn test -B -T 5 -PdeployIT"
-						deployITStages = prepareParallelStages("Deploy IT", deployITCmd, impactedModules)
+						deployITStages = prepareDynamicStages("Deploy IT", deployITCmd, impactedModules)
 						println("deployITStages : " + deployITStages)
 					}
 				    }
@@ -197,7 +202,7 @@ pipeline {
 			steps {
 				script {
 					for (unitTests in unitTestStages) {
-					    if (runParallel) {
+					    if (params.parallel) {
 						    unitTests.failFast = true
 						    parallel(unitTests)
 					    } else {
@@ -221,7 +226,7 @@ pipeline {
 			steps {
 				script {
 					for (integrationTests in integrationTestStages) {
-					    if (runParallel) {
+					    if (params.parallel) {
 					    	parallel(integrationTests)
 					    } else {
 					    	// run serially (nb. Map is unordered! )
@@ -244,7 +249,7 @@ pipeline {
 			steps {
 				script {
 					for (deployITs in deployITStages) {
-					    if (runParallel) {
+					    if (params.parallel) {
 					    	parallel(deployITs)
 					    } else {
 					    	// run serially (nb. Map is unordered! )
@@ -259,21 +264,21 @@ pipeline {
 		}
 	}	
 }
-// Create List of parallel stagesfor execution
-def prepareParallelStages(stageName, command, impactedModules) {
+// Create List of dynamic stages for execution
+def prepareDynamicStages(stageName, command, impactedModules) {
 	def stageList = []
 	def i=1
-	def parallelExecutionMap = [:]
+	def dynamicExecutionMap = [:]
 	for (impactedModuleName in impactedModules ) {
 		def childStageName = "${stageName} : ${impactedModuleName} ${i}"
 		def moduleScript = "${command} -pl ${impactedModuleName}"
-		parallelExecutionMap.put(childStageName, prepareStage(childStageName, moduleScript))
+		dynamicExecutionMap.put(childStageName, prepareStage(childStageName, moduleScript))
 		println("i : " + i)
 		if(i % 5 == 0 || impactedModules.size() == i){
-			def parallelStageMap = [:]
-			parallelStageMap.putAll(parallelExecutionMap)
-			stageList.add(parallelStageMap)
-			parallelExecutionMap = [:]
+			def dynamicStageMap = [:]
+			dynamicStageMap.putAll(dynamicExecutionMap)
+			stageList.add(dynamicStageMap)
+			dynamicExecutionMap = [:]
 			i=0
 		}
 		i++
