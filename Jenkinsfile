@@ -160,38 +160,22 @@ pipeline {
 					return impactedModules.size() > 0
 				}
 			}
-			parallel {
-				stage('initialise unit test') {
-				    steps {
-					script {
-						// Set up List<Map<String,Closure>> describing the builds
-						def unitTestCmd = "mvn test -B -T 5 -PunitTest"
-						unitTestStages = prepareDynamicStages("Unit Test", unitTestCmd, impactedModules)
-						println("unitTestStages : " + unitTestStages)
-					}
-				    }
+			steps {
+				script {
+					// Set up List<Map<String,Closure>> describing the builds
+					def unitTestCmd = "mvn test -B -T 5 -PunitTest"
+					unitTestStages = prepareDynamicStages("Unit Test", unitTestCmd, impactedModules)
+					println("unitTestStages : " + unitTestStages)
+					// Set up List<Map<String,Closure>> describing the builds
+					def integrationTestCmd = "mvn test -B -T 5 -PintegrationTest"
+					integrationTestStages = prepareDynamicStages("Integration Test", integrationTestCmd, impactedModules)
+					println("integrationTestStages : " + integrationTestStages)
+					// Set up List<Map<String,Closure>> describing the builds
+					def deployITCmd = "mvn test -B -T 5 -PdeployIT"
+					deployITStages = prepareDynamicStages("Deploy IT", deployITCmd, impactedModules)
+					println("deployITStages : " + deployITStages)
 				}
-				stage('initialise integration test') {
-				    steps {
-					script {
-						// Set up List<Map<String,Closure>> describing the builds
-						def integrationTestCmd = "mvn test -B -T 5 -PintegrationTest"
-						integrationTestStages = prepareDynamicStages("Integration Test", integrationTestCmd, impactedModules)
-						println("integrationTestStages : " + integrationTestStages)
-					}
-				    }
-				}
-				stage('initialise deploy IT') {
-				    steps {
-					script {
-						// Set up List<Map<String,Closure>> describing the builds
-						def deployITCmd = "mvn test -B -T 5 -PdeployIT"
-						deployITStages = prepareDynamicStages("Deploy IT", deployITCmd, impactedModules)
-						println("deployITStages : " + deployITStages)
-					}
-				    }
-				}
-			    }
+			}
 		  }
 		//this stage will run unit test for the affected modules only if unitTestStages.size() > 0
 		stage("verify unit test") {
