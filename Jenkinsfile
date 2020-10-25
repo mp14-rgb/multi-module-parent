@@ -81,7 +81,7 @@ pipeline {
 				}
 			}
 		}
-		stage('clean') {
+		stage('clean modules') {
 			when {
 				expression {
 					return buildAll || affectedModules.size() > 0
@@ -104,28 +104,6 @@ pipeline {
 				}
 			}
 		 }
-		stage('Initialise') {
-			when {
-				expression {
-					return impactedModules.size() > 0
-				}
-			}
-			steps {
-				script {
-				    	// Set up List<Map<String,Closure>> describing the builds
-					def unitTestCmd = "mvn test -B -T 5 -PunitTest"
-					unitTestStages = prepareParallelStages("Unit Test", unitTestCmd, impactedModules)
-					println("unitTestStages : " + unitTestStages)
-					def integrationTestCmd = "mvn test -B -T 5 -PintegrationTest"
-					integrationTestStages = prepareParallelStages("Integration Test", integrationTestCmd, impactedModules)
-					println("integrationTestStages : " + integrationTestStages)
-					def deployITCmd = "mvn test -B -T 5 -PdeployIT"
-					deployITStages = prepareParallelStages("Deploy IT", deployITCmd, impactedModules)
-					println("deployITStages : " + deployITStages)
-				    	println("Initialised pipeline.")
-				}
-			}
-		  }
 		//this stage will build all if the flag buildAll = true
 		stage("build all") {
 			when {
@@ -169,8 +147,30 @@ pipeline {
 
 			}
 		}
+		stage('initialise test') {
+			when {
+				expression {
+					return impactedModules.size() > 0
+				}
+			}
+			steps {
+				script {
+				    	// Set up List<Map<String,Closure>> describing the builds
+					def unitTestCmd = "mvn test -B -T 5 -PunitTest"
+					unitTestStages = prepareParallelStages("Unit Test", unitTestCmd, impactedModules)
+					println("unitTestStages : " + unitTestStages)
+					def integrationTestCmd = "mvn test -B -T 5 -PintegrationTest"
+					integrationTestStages = prepareParallelStages("Integration Test", integrationTestCmd, impactedModules)
+					println("integrationTestStages : " + integrationTestStages)
+					def deployITCmd = "mvn test -B -T 5 -PdeployIT"
+					deployITStages = prepareParallelStages("Deploy IT", deployITCmd, impactedModules)
+					println("deployITStages : " + deployITStages)
+				    	println("Initialised pipeline.")
+				}
+			}
+		  }
 		//this stage will run unit test for the affected modules only if unitTestStages.size() > 0
-		stage("UnitTest stages") {
+		stage("verify unit test") {
 			when {
 				expression {
 					return unitTestStages.size() > 0
@@ -194,7 +194,7 @@ pipeline {
 			}
 		}
 		//this stage will run unit test for the affected modules only if integrationTestStages.size() > 0
-		stage("IntegrationTest stages") {
+		stage("verify integration test") {
 			when {
 				expression {
 					return integrationTestStages.size() > 0
@@ -217,7 +217,7 @@ pipeline {
 			}
 		}
 		//this stage will run unit test for the affected modules only if deployITStages.size() > 0
-		stage("deployITStages stages") {
+		stage("verify deploy IT") {
 			when {
 				expression {
 					return deployITStages.size() > 0
