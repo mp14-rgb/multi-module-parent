@@ -96,7 +96,7 @@ pipeline {
 						//remove duplicate items and separate them using "," delimeter
 						affectedList = affectedModules.unique().join(",")
 						// -T 5 means we can build modules in parallel using 5 Threads, we can scale this
-						impactedModules = sh(returnStdout: true, script: "mvn clean -B  -pl ${affectedList} -am -DskipTests -Pbuild -T 5 | grep com.demo | awk -F \":| \" '{print \$4}'").trim().split()
+						impactedModules = sh(returnStdout: true, script: "mvn clean -B  -pl ${affectedList} -amd -DskipTests -Pbuild -T 5 | grep com.demo | awk -F \":| \" '{print \$4}'").trim().split()
 					}
 					println("impactedModules : " + impactedModules)
 				    	println("Cleaned impacted modules")
@@ -157,9 +157,9 @@ pipeline {
 					//goal = install | compile		
 					// -T 5 means we can build modules in parallel using 5 Threads, we can scale this
 					if (isUnix()) {
-						sh "mvn clean ${goal} -B -pl ${affectedList} -am -DskipTests -Pbuild -T 5"
+						sh "mvn ${goal} -B -pl ${affectedList} -amd -DskipTests -Pbuild -T 5"
 					} else {
-						bat "mvn clean ${goal} -B -pl ${affectedList} -am -DskipTests -Pbuild -T 5"	
+						bat "mvn ${goal} -B -pl ${affectedList} -amd -DskipTests -Pbuild -T 5"	
 					}
 				}
 
