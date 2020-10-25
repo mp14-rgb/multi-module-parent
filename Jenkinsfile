@@ -248,8 +248,8 @@ def prepareParallelStages(stageName, command, impactedModules) {
 	def parallelExecutionMap = [:]
 	for (impactedModuleName in impactedModules ) {
 		def childStageName = "${stageName} : ${impactedModuleName} ${i}"
-		def script = "${command} -pl ${impactedModuleName}"
-		parallelExecutionMap.put(childStageName, prepareStage(childStageName, command))
+		def moduleScript = "${command} -pl ${impactedModuleName}"
+		parallelExecutionMap.put(childStageName, prepareStage(childStageName, moduleScript))
 		println("i : " + i)
 		if(i % 5 == 0 || impactedModules.size() == i){
 			def parallelStageMap = [:]
