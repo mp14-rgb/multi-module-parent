@@ -120,11 +120,11 @@ pipeline {
 			steps {
 				script {
 				    	// Set up List<Map<String,Closure>> describing the builds
-					unitTestStages = prepareParallelStages("UnitTest", impactedModules)
+					unitTestStages = prepareParallelStages("UnitTest")
 					println("unitTestStages : " + unitTestStages)
-					integrationTestStages = prepareParallelStages("IntegrationTest", impactedModules)
+					integrationTestStages = prepareParallelStages("IntegrationTest")
 					println("integrationTestStages : " + integrationTestStages)
-					deployITStages = prepareParallelStages("DeployIT", impactedModules)
+					deployITStages = prepareParallelStages("DeployIT")
 					println("deployITStages : " + deployITStages)
 				    	println("Initialised pipeline.")
 				}
@@ -246,11 +246,11 @@ pipeline {
 	}	
 }
 // Create List of parallel stagesfor execution
-def prepareParallelStages(stageName, affectedModuleList) {
+def prepareParallelStages(stageName) {
 	def stageList = []
 	def i=0
 	def parallelExecutionMap = [:]
-	for (name in affectedModuleList ) {
+	for (name in impactedModules ) {
 		def n = "${stageName} : ${name} ${i}"
 		parallelExecutionMap.put(n, prepareStage(n))
 		if(i % 5 == 0){
