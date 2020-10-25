@@ -11,40 +11,6 @@ def unitTestStages = []
 def integrationTestStages = []
 def deployITStages = []
 
-// Define variables
-List category_list = ["\"Select:selected\"","\"Vegetables\"","\"Fruits\""]
-List fruits_list = ["\"Select:selected\"","\"apple\"","\"banana\"","\"mango\""]
-List vegetables_list = ["\"Select:selected\"","\"potato\"","\"tomato\"","\"broccoli\""]
-List default_item = ["\"Not Applicable\""]
-String categories = buildScript(category_list)
-String vegetables = buildScript(vegetables_list)
-String fruits = buildScript(fruits_list)
-String items = populateItems(default_item,vegetables_list,fruits_list)
-// Methods to build groovy scripts to populate data
-String buildScript(List values){
-  return "return $values"
-}
-String populateItems(List default_item, List vegetablesList, List fruitsList){
-return """if(Categories.equals('Vegetables')){
-     return $vegetablesList
-     }
-     else if(Categories.equals('Fruits')){
-     return $fruitsList
-     }else{
-     return $default_item
-     }
-     """
-}
-// Properties step to set the Active choice parameters via 
-// Declarative Scripting
-properties([
-    parameters([
-        [$class: 'ChoiceParameter', choiceType: 'PT_SINGLE_SELECT',   name: 'Categories', script: [$class: 'GroovyScript', fallbackScript: [classpath: [], sandbox: false, script: 'return ["ERROR"]'], script: [classpath: [], sandbox: false,
-        script:  categories]]],
-[$class: 'CascadeChoiceParameter', choiceType: 'PT_SINGLE_SELECT',name: 'Items', referencedParameters: 'Categories', script: [$class: 'GroovyScript', fallbackScript: [classpath: [], sandbox: false, script: 'return ["error"]'], script: [classpath: [], sandbox: false, script: items]]]
-    ])
-])
-
 pipeline {
 	
 	agent any
@@ -54,7 +20,6 @@ pipeline {
     	}
 	
 	parameters {
-		booleanParam(name: "parallel", description: 'Enable Prallel Execution', defaultValue: true)
 		booleanParam(name: "RELEASE", description: 'Generate Release', defaultValue: false)
 		choice(name: "DEPLOY_TO", description: 'Deply To Environment', choices: ["", "DEV", "QA2", "STAGE", "QA", "INT", "PRE", "PROD"])
 	}
@@ -156,9 +121,9 @@ pipeline {
 					//goal = install | compile		
 					// -T 5 means we can build modules in parallel using 5 Threads, we can scale this
 					if (isUnix()) {
-						sh "mvn clean ${goal} -B -DskipTests -Pbuild -T 5" 
+						sh "mvn ${goal} -B -DskipTests -Pbuild -T 5 -nsu" 
 					} else {
-						bat "mvn clean ${goal} -B -DskipTests -Pbuild -T 5"
+						bat "mvn ${goal} -B -DskipTests -Pbuild -T 5 -nsu"
 					}
 				}
 
@@ -179,9 +144,9 @@ pipeline {
 					//goal = install | compile		
 					// -T 5 means we can build modules in parallel using 5 Threads, we can scale this
 					if (isUnix()) {
-						sh "mvn ${goal} -B -pl ${affectedList} -amd -DskipTests -Pbuild -T 5"
+						sh "mvn ${goal} -B -pl ${affectedList} -amd -DskipTests -Pbuild -T 5 -nsu"
 					} else {
-						bat "mvn ${goal} -B -pl ${affectedList} -amd -DskipTests -Pbuild -T 5"	
+						bat "mvn ${goal} -B -pl ${affectedList} -amd -DskipTests -Pbuild -T 5 -nsu"	
 					}
 				}
 
@@ -197,15 +162,15 @@ pipeline {
 			steps {
 				script {
 					// Set up List<Map<String,Closure>> describing the builds
-					def unitTestCmd = "mvn test -B -T 5 -PunitTest"
+					def unitTestCmd = "mvn test -B -T 5 -nsu -PunitTest"
 					unitTestStages = prepareDynamicStages("Unit Test", unitTestCmd, impactedModules)
 					println("unitTestStages : " + unitTestStages)
 					// Set up List<Map<String,Closure>> describing the builds
-					def integrationTestCmd = "mvn test -B -T 5 -PintegrationTest"
+					def integrationTestCmd = "mvn test -B -T 5 -nsu -PintegrationTest"
 					integrationTestStages = prepareDynamicStages("Integration Test", integrationTestCmd, impactedModules)
 					println("integrationTestStages : " + integrationTestStages)
 					// Set up List<Map<String,Closure>> describing the builds
-					def deployITCmd = "mvn test -B -T 5 -PdeployIT"
+					def deployITCmd = "mvn test -B -T 5 -nsu -PdeployIT"
 					deployITStages = prepareDynamicStages("Deploy IT", deployITCmd, impactedModules)
 					println("deployITStages : " + deployITStages)
 				}
@@ -221,7 +186,7 @@ pipeline {
 			steps {
 				script {
 					for (unitTests in unitTestStages) {
-					    if (params.parallel) {
+					    if (runParallel) {
 						    unitTests.failFast = true
 						    parallel(unitTests)
 					    } else {
@@ -245,7 +210,7 @@ pipeline {
 			steps {
 				script {
 					for (integrationTests in integrationTestStages) {
-					    if (params.parallel) {
+					    if (runParallel) {
 					    	parallel(integrationTests)
 					    } else {
 					    	// run serially (nb. Map is unordered! )
@@ -268,7 +233,7 @@ pipeline {
 			steps {
 				script {
 					for (deployITs in deployITStages) {
-					    if (params.parallel) {
+					    if (runParallel) {
 					    	parallel(deployITs)
 					    } else {
 					    	// run serially (nb. Map is unordered! )
