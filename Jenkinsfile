@@ -186,21 +186,6 @@ pipeline {
 				    }
 				}
 			    }
-			steps {
-				script {
-				    	// Set up List<Map<String,Closure>> describing the builds
-					def unitTestCmd = "mvn test -B -T 5 -PunitTest"
-					unitTestStages = prepareParallelStages("Unit Test", unitTestCmd, impactedModules)
-					println("unitTestStages : " + unitTestStages)
-					def integrationTestCmd = "mvn test -B -T 5 -PintegrationTest"
-					integrationTestStages = prepareParallelStages("Integration Test", integrationTestCmd, impactedModules)
-					println("integrationTestStages : " + integrationTestStages)
-					def deployITCmd = "mvn test -B -T 5 -PdeployIT"
-					deployITStages = prepareParallelStages("Deploy IT", deployITCmd, impactedModules)
-					println("deployITStages : " + deployITStages)
-				    	println("Initialised pipeline.")
-				}
-			}
 		  }
 		//this stage will run unit test for the affected modules only if unitTestStages.size() > 0
 		stage("verify unit test") {
