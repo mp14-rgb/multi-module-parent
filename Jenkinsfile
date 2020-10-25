@@ -20,8 +20,9 @@ pipeline {
     	}
 	
 	parameters {
-		booleanParam(name: "RELEASE", defaultValue: false)
-		booleanParam(name: "parallel", defaultValue: true)
+		booleanParam(name: "parallel", description: 'Enable Prallel Execution', defaultValue: true)
+		booleanParam(name: "RELEASE", description: 'Generate Release', defaultValue: false)
+		choice(name: "DEPLOY_TO", description: 'Deply To Environment', choices: ["", "DEV", "QA2", "STAGE", "QA", "INT", "PRE", "PROD"])
 	}
 
 	//load tools - these should be configured in jenkins global tool configuration
