@@ -147,7 +147,8 @@ pipeline {
 
 			}
 		}
-		stage('initialise test') {
+		//this stage will run unit test for the affected modules only if unitTestStages.size() > 0
+		stage("verify unit test") {
 			when {
 				expression {
 					return impactedModules.size() > 0
@@ -155,29 +156,10 @@ pipeline {
 			}
 			steps {
 				script {
-				    	// Set up List<Map<String,Closure>> describing the builds
+					// Set up List<Map<String,Closure>> describing the builds
 					def unitTestCmd = "mvn test -B -T 5 -PunitTest"
 					unitTestStages = prepareParallelStages("Unit Test", unitTestCmd, impactedModules)
 					println("unitTestStages : " + unitTestStages)
-					def integrationTestCmd = "mvn test -B -T 5 -PintegrationTest"
-					integrationTestStages = prepareParallelStages("Integration Test", integrationTestCmd, impactedModules)
-					println("integrationTestStages : " + integrationTestStages)
-					def deployITCmd = "mvn test -B -T 5 -PdeployIT"
-					deployITStages = prepareParallelStages("Deploy IT", deployITCmd, impactedModules)
-					println("deployITStages : " + deployITStages)
-				    	println("Initialised pipeline.")
-				}
-			}
-		  }
-		//this stage will run unit test for the affected modules only if unitTestStages.size() > 0
-		stage("verify unit test") {
-			when {
-				expression {
-					return unitTestStages.size() > 0
-				}
-			}
-			steps {
-				script {
 					for (unitTests in unitTestStages) {
 					    if (runParallel) {
 						    unitTests.failFast = true
@@ -197,11 +179,15 @@ pipeline {
 		stage("verify integration test") {
 			when {
 				expression {
-					return integrationTestStages.size() > 0
+					return impactedModules.size() > 0
 				}
 			}
 			steps {
 				script {
+					// Set up List<Map<String,Closure>> describing the builds
+					def integrationTestCmd = "mvn test -B -T 5 -PintegrationTest"
+					integrationTestStages = prepareParallelStages("Integration Test", integrationTestCmd, impactedModules)
+					println("integrationTestStages : " + integrationTestStages)
 					for (integrationTests in integrationTestStages) {
 					    if (runParallel) {
 					    	parallel(integrationTests)
@@ -220,11 +206,14 @@ pipeline {
 		stage("verify deploy IT") {
 			when {
 				expression {
-					return deployITStages.size() > 0
+					return impactedModules.size() > 0
 				}
 			}
 			steps {
 				script {
+					def deployITCmd = "mvn test -B -T 5 -PdeployIT"
+					deployITStages = prepareParallelStages("Deploy IT", deployITCmd, impactedModules)
+					println("deployITStages : " + deployITStages)
 					for (deployITs in deployITStages) {
 					    if (runParallel) {
 					    	parallel(deployITs)
