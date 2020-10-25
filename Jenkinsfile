@@ -248,18 +248,19 @@ pipeline {
 // Create List of parallel stagesfor execution
 def prepareParallelStages(stageName, impactedModules) {
 	def stageList = []
-	def i=0
+	def i=1
 	def parallelExecutionMap = [:]
 	for (name in impactedModules ) {
 		def n = "${stageName} : ${name} ${i}"
 		parallelExecutionMap.put(n, prepareStage(n))
 		println("i : " + i)
 		println("impactedModules.size() : " + impactedModules.size())
-		if(i % 5 == 0 || impactedModules.size() == i+1){
+		if(i % 5 == 0 || impactedModules.size() == i){
 			def parallelStageMap = [:]
 			parallelStageMap.putAll(parallelExecutionMap)
 			stageList.add(parallelStageMap)
 			parallelExecutionMap = [:]
+			i=0
 		}
 		i++
 	}
