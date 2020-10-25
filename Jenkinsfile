@@ -253,7 +253,7 @@ def prepareParallelStages(stageName, impactedModules) {
 	for (name in impactedModules ) {
 		def n = "${stageName} : ${name} ${i}"
 		parallelExecutionMap.put(n, prepareStage(n))
-		if(i % 5 == 0){
+		if(i % 5 == 0 || impactedModules.size() == i-1){
 			def parallelStageMap = [:]
 			parallelStageMap.putAll(parallelExecutionMap)
 			stageList.add(parallelStageMap)
