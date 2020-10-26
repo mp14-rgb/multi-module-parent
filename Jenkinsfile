@@ -110,7 +110,7 @@ pipeline {
 			}
 		 }
 		//this stage will build all if the flag buildAll = true
-		stage("build all") {
+		stage("compile all") {
 			when {
 				expression {
 					return buildAll 
@@ -121,16 +121,16 @@ pipeline {
 					//goal = install | compile		
 					// -T 5 means we can build modules in parallel using 5 Threads, we can scale this
 					if (isUnix()) {
-						sh "mvn ${goal} -B -DskipTests -Pbuild -T 5 -nsu" 
+						sh "mvn compile test-compile -B -T 5 -nsu"
 					} else {
-						bat "mvn ${goal} -B -DskipTests -Pbuild -T 5 -nsu"
+						bat "mvn compile test-compile -B -T 5 -nsu"
 					}
 				}
 
 			}
 		}
 		//this stage will build the affected modules only if affectedModules.size() > 0
-		stage("build modules") {
+		stage("compile modules") {
 			when {
 				expression {
 					return affectedModules.size() > 0
@@ -144,15 +144,14 @@ pipeline {
 					//goal = install | compile		
 					// -T 5 means we can build modules in parallel using 5 Threads, we can scale this
 					if (isUnix()) {
-						sh "mvn ${goal} -B -pl ${affectedList} -amd -DskipTests -Pbuild -T 5 -nsu"
+						sh "mvn compile test-compile -B -T 5 -nsu -pl ${affectedList} -amd"
 					} else {
-						bat "mvn ${goal} -B -pl ${affectedList} -amd -DskipTests -Pbuild -T 5 -nsu"	
+						bat "mvn compile test-compile -B -T 5 -nsu -pl ${affectedList} -amd"	
 					}
 				}
 
 			}
 		}
-		
 		stage('initialise test') {
 			when {
 				expression {
@@ -241,6 +240,49 @@ pipeline {
 							deployIT.call()
 					    	}
 					    }
+					}
+				}
+
+			}
+		}
+		//this stage will build all if the flag buildAll = true
+		stage("package all") {
+			when {
+				expression {
+					return buildAll
+				}
+			}
+			steps {
+				script {
+					//goal = install | compile		
+					// -T 5 means we can build modules in parallel using 5 Threads, we can scale this
+					if (isUnix()) {
+						sh "mvn package -B -DskipTests -Pbuild -T 5 -nsu" 
+					} else {
+						bat "mvn package -B -DskipTests -Pbuild -T 5 -nsu"
+					}
+				}
+
+			}
+		}
+		//this stage will build the affected modules only if affectedModules.size() > 0
+		stage("package modules") {
+			when {
+				expression {
+					return affectedModules.size() > 0 && goal == "package"
+				}
+			}
+
+			steps {
+				script {
+					//remove duplicate items and separate them using "," delimeter
+					affectedList = affectedModules.unique().join(",")
+					//goal = install | compile		
+					// -T 5 means we can build modules in parallel using 5 Threads, we can scale this
+					if (isUnix()) {
+						sh "mvn package -B -pl ${affectedList} -amd -DskipTests -Pbuild -T 5 -nsu"
+					} else {
+						bat "mvn package -B -pl ${affectedList} -amd -DskipTests -Pbuild -T 5 -nsu"	
 					}
 				}
 
