@@ -96,12 +96,12 @@ pipeline {
 				script {
 					if(buildAll){
 						// -T 5 means we can build modules in parallel using 5 Threads, we can scale this
-						impactedModules = sh(returnStdout: true, script: "mvn clean -B -DskipTests -Pbuild -T 5 | grep com.demo | awk -F \":| \" '{print \$4}'").trim().split()
+						impactedModules = sh(returnStdout: true, script: "mvn clean -B -T 5 | grep com.demo | awk -F \":| \" '{print \$4}'").trim().split()
 					} else {
 						//remove duplicate items and separate them using "," delimeter
 						affectedList = affectedModules.unique().join(",")
 						// -T 5 means we can build modules in parallel using 5 Threads, we can scale this
-						impactedModules = sh(returnStdout: true, script: "mvn clean -B  -pl ${affectedList} -amd -DskipTests -Pbuild -T 5 | grep com.demo | awk -F \":| \" '{print \$4}'").trim().split()
+						impactedModules = sh(returnStdout: true, script: "mvn clean -B  -pl ${affectedList} -amd -T 5 | grep com.demo | awk -F \":| \" '{print \$4}'").trim().split()
 					}
 					println("impactedModules : " + impactedModules)
 				    	println("impactedModules.size() : " + impactedModules.size())
