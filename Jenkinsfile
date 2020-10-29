@@ -29,6 +29,11 @@ pipeline {
         	maven 'Maven 3.6.3' 
         	jdk 'JDK8' 
     	}
+	pre {
+		always {
+			echo "Job : ${currentbuild.currentResult}"
+		}
+	}
 	stages {
 		//this stage will get all the files that were modified
 		stage("get diff") {
@@ -288,7 +293,13 @@ pipeline {
 
 			}
 		}
-	}	
+	}
+	
+	post {
+		always {
+			echo "Job : ${currentbuild.currentResult}"
+		}
+	}
 }
 // Create List of dynamic stages for execution
 def prepareDynamicStages(stageName, command, impactedModules) {
