@@ -322,10 +322,8 @@ def prepareDynamicStages(stageName, command, impactedModules) {
 def prepareStage(childStageName, command) {
 	return {
 		stage("Build stage:${childStageName}") {
-			steps {
 			println("Building ${childStageName}")
 			sh(script:"${command}", returnStatus:true)
-			}
 		}
 	}
 }
