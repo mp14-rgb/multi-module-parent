@@ -292,7 +292,7 @@ pipeline {
 	
 	post {
 		always {
-			echo "Job : ${currentbuild.currentResult}"
+			echo "Job : ${currentBuild.currentResult}"
 		}
 	}
 }
