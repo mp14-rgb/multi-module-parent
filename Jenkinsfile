@@ -35,7 +35,7 @@ pipeline {
 		stage("get diff") {
 			steps {
 				script {
-					currentBuild.result = "Pending.... get diff"
+					currentBuild.description = "Pending.... get diff"
 					def changes = []
 					
 					if(env.CHANGE_ID) { //check if triggered via Pull Request
@@ -85,7 +85,7 @@ pipeline {
 					}
 					println("Changes : " + changes)
 					println("affectedModules : " + affectedModules)
-					currentBuild.result = "done.... get diff"
+					currentBuild.description = "done.... get diff"
 				}
 			}
 		}
@@ -97,7 +97,7 @@ pipeline {
 			}
 			steps {
 				script {
-					currentBuild.result = "Pending.... clean modules"
+					currentBuild.description = "Pending.... clean modules"
 					
 					if(buildAll){
 						// -T 5 means we can build modules in parallel using 5 Threads, we can scale this
@@ -111,7 +111,7 @@ pipeline {
 					println("impactedModules : " + impactedModules)
 				    	println("impactedModules.size() : " + impactedModules.size())
 					println("Cleaned impacted modules")
-					currentBuild.result = "Done.... cleaned modules"
+					currentBuild.description = "Done.... cleaned modules"
 				}
 			}
 		 }
@@ -124,7 +124,7 @@ pipeline {
 			}
 			steps {
 				script {
-					currentBuild.result = "Pending.... compile modules"
+					currentBuild.description = "Pending.... compile modules"
 					//goal = install | compile		
 					// -T 5 means we can build modules in parallel using 5 Threads, we can scale this
 					if (isUnix()) {
@@ -132,7 +132,7 @@ pipeline {
 					} else {
 						bat "mvn compile test-compile -B -T 5 -nsu"
 					}
-					currentBuild.result = "Done.... complied modules"
+					currentBuild.description = "Done.... complied modules"
 				}
 
 			}
