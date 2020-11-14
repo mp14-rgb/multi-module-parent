@@ -359,7 +359,7 @@ def updateGithubCommitStatus(build) {
       $class: 'ConditionalStatusResultSource',
       results: [
         [$class: 'BetterThanOrEqualBuildResult', result: 'SUCCESS', state: 'SUCCESS', message: build.description],
-        [$class: 'BetterThanOrEqualBuildResult', result: 'FAILURE', state: 'FAILURE', message: build.description],
+        [$class: 'BetterThanOrEqualBuildResult', result: 'FAILURE', state: 'FAILURE', message: "failed pr check"],
         [$class: 'AnyBuildResult', state: 'FAILURE', message: 'Loophole']
       ]
     ]
