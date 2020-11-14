@@ -296,11 +296,11 @@ pipeline {
 			echo "Job : ${currentBuild.currentResult}"
 		}
 		success {
-			updateGithubCommitStatus(build)
+			notify("success")
 		}
 
 		failure {
-			updateGithubCommitStatus(build)
+			notify("failed")
 		}
 	}
 }
