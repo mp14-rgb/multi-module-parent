@@ -72,6 +72,7 @@ pipeline {
 					} catch(exc){
 					    setBuildStatus("Build failed", "FAILURE");
 					}
+					setBuildStatus("Build failed", "FAILURE");
 				}
 			}
 		}
