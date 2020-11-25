@@ -35,7 +35,7 @@ pipeline {
 		stage("get diff") {
 			steps {
 				script {
-					pullRequest.createStatus(status: 'success',
+					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Pending.... get diff',
                          targetUrl: "${env.JOB_URL}")
@@ -88,7 +88,7 @@ pipeline {
 					}
 					println("Changes : " + changes)
 					println("affectedModules : " + affectedModules)
-					pullRequest.createStatus(status: 'success',
+					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Done.... get diff',
                          targetUrl: "${env.JOB_URL}")
@@ -103,7 +103,7 @@ pipeline {
 			}
 			steps {
 				script {
-					pullRequest.createStatus(status: 'success',
+					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Pending.... clean modules',
                          targetUrl: "${env.JOB_URL}")
@@ -120,7 +120,7 @@ pipeline {
 					println("impactedModules : " + impactedModules)
 				    	println("impactedModules.size() : " + impactedModules.size())
 					println("Cleaned impacted modules")
-					pullRequest.createStatus(status: 'success',
+					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Done.... cleaned modules',
                          targetUrl: "${env.JOB_URL}")
@@ -136,7 +136,7 @@ pipeline {
 			}
 			steps {
 				script {
-					pullRequest.createStatus(status: 'success',
+					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Pending.... compile all modules',
                          targetUrl: "${env.JOB_URL}")
@@ -147,7 +147,7 @@ pipeline {
 					} else {
 						bat "mvn compile test-compile -B -T 5 -nsu"
 					}
-					pullRequest.createStatus(status: 'success',
+					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Done.... complied all modules',
                          targetUrl: "${env.JOB_URL}")
@@ -165,7 +165,7 @@ pipeline {
 
 			steps {
 				script {
-					pullRequest.createStatus(status: 'success',
+					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Pending.... compile modules',
                          targetUrl: "${env.JOB_URL}")
@@ -178,7 +178,7 @@ pipeline {
 					} else {
 						bat "mvn compile test-compile -B -T 5 -nsu -pl ${affectedList} -amd"	
 					}
-					pullRequest.createStatus(status: 'success',
+					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Done.... compile modules',
                          targetUrl: "${env.JOB_URL}")
@@ -194,7 +194,7 @@ pipeline {
 			}
 			steps {
 				script {
-					pullRequest.createStatus(status: 'success',
+					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Pending.... initialise test',
                          targetUrl: "${env.JOB_URL}")
@@ -211,7 +211,7 @@ pipeline {
 					deployITStages = prepareDynamicStages("Deploy IT", deployITCmd, impactedModules)
 					println("deployITStages : " + deployITStages)
 					
-					pullRequest.createStatus(status: 'success',
+					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Done.... initialise test',
                          targetUrl: "${env.JOB_URL}")
@@ -227,7 +227,7 @@ pipeline {
 			}
 			steps {
 				script {
-					pullRequest.createStatus(status: 'success',
+					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Pending.... verify unit test',
                          targetUrl: "${env.JOB_URL}")
@@ -243,7 +243,7 @@ pipeline {
 					    }
 					}
 					
-					pullRequest.createStatus(status: 'success',
+					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Done.... verify unit test',
                          targetUrl: "${env.JOB_URL}")
@@ -347,7 +347,10 @@ pipeline {
 			echo "Job : ${currentBuild.currentResult}"
 		}
 		success {
-			updateGithubCommitStatus(currentBuild)
+			pullRequest.createStatus(status: 'success',
+                         context: 'continuous-integration/jenkins/pr-merge',
+                         description: 'all checks passed',
+                         targetUrl: "${env.JOB_URL}/testResults")
 		}
 
 		failure {
