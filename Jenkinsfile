@@ -70,7 +70,7 @@ pipeline {
 						}
 					
 					} catch(exc){
-					    handleException('Composer install failed', exc);
+					    setBuildStatus("Build failed", "FAILURE");
 					}
 				}
 			}
@@ -119,4 +119,13 @@ pipeline {
 			}
 		}	
 	}	
+}
+def setBuildStatus(String message, String state) {
+  step([
+      $class: "GitHubCommitStatusSetter",
+      reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://github.com/mp14-rgb/multi-module-parent"],
+      contextSource: [$class: "ManuallyEnteredCommitContextSource", context: "ci/jenkins/build-status"],
+      errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
+      statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]] ]
+  ]);
 }
