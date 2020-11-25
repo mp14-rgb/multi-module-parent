@@ -32,7 +32,11 @@ pipeline {
 	
 	stages {
 		stage("print env"){
-			sh 'printenv'
+			steps {
+				script {
+					sh 'printenv'
+				}
+			}
 		}
 		//this stage will get all the files that were modified
 		stage("get diff") {
