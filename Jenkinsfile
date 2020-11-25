@@ -34,17 +34,21 @@ pipeline {
     	}
 	
 	stages {
+		try{
 		stage("print env"){
 			steps {
 				script {
 					sh 'printenv'
+				}
+			}
+		}
+		} finally {
+			
 					FlowGraphWalker walker = new FlowGraphWalker(currentBuild.rawBuild.getExecution())
 					    for (FlowNode flowNode: walker) {
 						// do whatever you want with flowNode
 						echo flowNode.dump()
 					    }
-				}
-			}
 		}
 		//this stage will get all the files that were modified
 		stage("get diff") {
