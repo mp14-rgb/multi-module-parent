@@ -347,10 +347,14 @@ pipeline {
 			echo "Job : ${currentBuild.currentResult}"
 		}
 		success {
-			pullRequest.createStatus(status: 'success',
+			// CHANGE_ID is set only for pull requests, so it is safe to access the pullRequest global variable
+				if (env.CHANGE_ID) {
+				    pullRequest.removeLabel('Build Failed')
+					pullRequest.createStatus(status: 'success',
                          context: 'continuous-integration/jenkins/pr-merge',
-                         description: 'all checks passed',
-                         targetUrl: "${env.JOB_URL}/testResults")
+                         description: 'all check passed',
+                         targetUrl: "${env.JOB_URL}")
+				}
 		}
 
 		failure {
@@ -361,7 +365,7 @@ pipeline {
 					pullRequest.createStatus(status: 'failure',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Checks failed',
-                         targetUrl: "${env.JOB_URL}/testResults")
+                         targetUrl: "${env.JOB_URL}")
 				}
 			 }
 		}
