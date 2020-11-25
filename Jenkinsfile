@@ -35,7 +35,22 @@ pipeline {
 			steps {
 				script {
 					sh 'printenv'
-					println(getStageFlowLogUrl())
+					 WorkflowRun run = Jenkins.instance.getItemByFullName("####YOUR_JOB_NAME####")._getRuns()[0]
+    FlowExecution exec = run.getExecution()
+    PipelineNodeGraphVisitor visitor = new PipelineNodeGraphVisitor(run)
+    def flowNodes = visitor.getPipelineNodes()
+
+    for (Iterator iterator = flowNodes.iterator(); iterator.hasNext();)
+    {
+        def node = iterator.next()
+        if (node.getType() == FlowNodeWrapper.NodeType.STAGE)
+        {
+               String stageName = node.getDisplayName()
+               def stageResult = node.getStatus().getResult()
+
+               println "Result of stage ${stageName} is ${stageResult}"
+        }
+    }
 				}
 			}
 		}
