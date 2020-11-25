@@ -21,53 +21,57 @@ pipeline {
 			steps {
 				script {
 					def changes = []
-					
-					if(env.CHANGE_ID) { //check if triggered via Pull Request
-						echo "Pull Request Trigger"
-						//get changes via git diff so we can know which module should be built
-						if (isUnix()) {
-							changes = sh(returnStdout: true, script: "git --no-pager diff origin/${CHANGE_TARGET} --name-only").trim().split()
-						}
-						else {
-							changes = bat(returnStdout: true, script: "git --no-pager diff origin/${CHANGE_TARGET} --name-only").trim().split()
-						}						
-						//use compile goal instead of package if the trigger came from Pull Request. we dont want to package our module for every pull request
-						goal = "compile"
-					} else if(currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').size() > 0) { //check if triggered via User 'Build Now'
-						echo "User Trigger"
-						buildAll = true						
-						//use package goal if the triggered by User.
-						goal = "package"
-					} else { //defaults to Push Trigger
-						echo "Push Trigger"
-						//get changes via changelogs so we can know which module should be built
-						def changeLogSets = currentBuild.changeSets
-						for (int i = 0; i < changeLogSets.size(); i++) {
-							def entries = changeLogSets[i].items
-							for (int j = 0; j < entries.length; j++) {
-								def entry = entries[j]
-								def files = new ArrayList(entry.affectedFiles)
-								for (int k = 0; k < files.size(); k++) {
-									def file = files[k]
-									changes.add(file.path)
-								}
-							}	
-						}						
-					}
-					//iterate through changes
-					changes.each {c -> 
-						if(c.contains("common") || c == "pom.xml") { //if changes includes parent pom.xml and common module, we should build all modules
-							affectedModules = []
-							buildAll = true
-							return
-						}else {
-							if(c.indexOf("/") > 1) { //filter all affected module. indexOf("/") means the file is inside a subfolder (module)
-								affectedModules.add(c.substring(0,c.indexOf("/")))
+					try {
+						if(env.CHANGE_ID) { //check if triggered via Pull Request
+							echo "Pull Request Trigger"
+							//get changes via git diff so we can know which module should be built
+							if (isUnix()) {
+								changes = sh(returnStdout: true, script: "git --no-pager diff origin/${CHANGE_TARGET} --name-only").trim().split()
 							}
-							
+							else {
+								changes = bat(returnStdout: true, script: "git --no-pager diff origin/${CHANGE_TARGET} --name-only").trim().split()
+							}						
+							//use compile goal instead of package if the trigger came from Pull Request. we dont want to package our module for every pull request
+							goal = "compile"
+							changes.sizeof
+						} else if(currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause').size() > 0) { //check if triggered via User 'Build Now'
+							echo "User Trigger"
+							buildAll = true						
+							//use package goal if the triggered by User.
+							goal = "package"
+						} else { //defaults to Push Trigger
+							echo "Push Trigger"
+							//get changes via changelogs so we can know which module should be built
+							def changeLogSets = currentBuild.changeSets
+							for (int i = 0; i < changeLogSets.size(); i++) {
+								def entries = changeLogSets[i].items
+								for (int j = 0; j < entries.length; j++) {
+									def entry = entries[j]
+									def files = new ArrayList(entry.affectedFiles)
+									for (int k = 0; k < files.size(); k++) {
+										def file = files[k]
+										changes.add(file.path)
+									}
+								}	
+							}						
 						}
-					}
+						//iterate through changes
+						changes.each {c -> 
+							if(c.contains("common") || c == "pom.xml") { //if changes includes parent pom.xml and common module, we should build all modules
+								affectedModules = []
+								buildAll = true
+								return
+							}else {
+								if(c.indexOf("/") > 1) { //filter all affected module. indexOf("/") means the file is inside a subfolder (module)
+									affectedModules.add(c.substring(0,c.indexOf("/")))
+								}
+
+							}
+						}
 					
+					} catch(exc){
+					    handleException('Composer install failed', exc);
+					}
 				}
 			}
 		}
