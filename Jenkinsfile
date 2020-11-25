@@ -311,6 +311,10 @@ pipeline {
 				// CHANGE_ID is set only for pull requests, so it is safe to access the pullRequest global variable
 				if (env.CHANGE_ID) {
 				    pullRequest.addLabel('Build Failed')
+					pullRequest.createStatus(status: 'success',
+                         context: 'continuous-integration/jenkins/pr-merge/tests',
+                         description: 'All tests are passing',
+                         targetUrl: "${env.JOB_URL}/testResults")
 				}
 			 }
 		}
