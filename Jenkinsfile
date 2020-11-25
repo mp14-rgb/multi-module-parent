@@ -368,6 +368,7 @@ pipeline {
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Checks failed',
                          targetUrl: "${env.JOB_URL}")
+					updateGithubCommitStatus(currentBuild)
 				}
 			 }
 		}
@@ -414,7 +415,7 @@ def getCommitSha() {
   return readFile(".git/current-commit").trim()
 }
 
-def updateGithubCommitStatus(build) {
+void updateGithubCommitStatus(build) {
   // workaround https://issues.jenkins-ci.org/browse/JENKINS-38674
   repoUrl = getRepoURL()
   commitSha = getCommitSha()
