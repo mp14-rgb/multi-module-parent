@@ -35,6 +35,7 @@ pipeline {
 			steps {
 				script {
 					sh 'printenv'
+					println(getStageFlowLogUrl())
 				}
 			}
 		}
@@ -47,6 +48,7 @@ pipeline {
                          description: 'Pending.... get diff',
                          targetUrl: "${env.JOB_URL}")
 					sh 'printenv'
+					println(getStageFlowLogUrl())
 					def changes = []
 					
 					if(env.CHANGE_ID) { //check if triggered via Pull Request
@@ -112,6 +114,7 @@ pipeline {
 			steps {
 				script {
 					sh 'printenv'
+					println(getStageFlowLogUrl())
 					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Pending.... clean modules',
@@ -146,6 +149,7 @@ pipeline {
 			steps {
 				script {
 					sh 'printenv'
+					println(getStageFlowLogUrl())
 					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Pending.... compile all modules',
@@ -206,6 +210,7 @@ pipeline {
 			steps {
 				script {
 					sh 'printenv'
+					println(getStageFlowLogUrl())
 					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Pending.... initialise test',
@@ -239,6 +244,7 @@ pipeline {
 			}
 			steps {
 				script {
+					println(getStageFlowLogUrl())
 					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Pending.... verify unit test',
