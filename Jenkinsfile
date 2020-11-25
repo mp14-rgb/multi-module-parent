@@ -347,6 +347,7 @@ pipeline {
 			echo "Job : ${currentBuild.currentResult}"
 		}
 		success {
+			script {
 			// CHANGE_ID is set only for pull requests, so it is safe to access the pullRequest global variable
 				if (env.CHANGE_ID) {
 				    pullRequest.removeLabel('Build Failed')
@@ -355,6 +356,7 @@ pipeline {
                          description: 'all check passed',
                          targetUrl: "${env.JOB_URL}")
 				}
+			}
 		}
 
 		failure {
