@@ -36,19 +36,12 @@ pipeline {
 	stages {
 		stage("print env"){
 			steps {
-				try{
 				script {
 					sh 'printenv'
+					echo currentStage.name
+					println(currentStage)
 				}
-		} finally {
-			
-					FlowGraphWalker walker = new FlowGraphWalker(currentBuild.rawBuild.getExecution())
-					    for (FlowNode flowNode: walker) {
-						// do whatever you want with flowNode
-						echo flowNode.dump()
-					    }
 			}
-		}
 		}
 		//this stage will get all the files that were modified
 		stage("get diff") {
@@ -480,4 +473,15 @@ def getStageFlowLogUrl(){
         }
     }
 return stageDescriptionId
+}
+def getNodeWsUrl(flowNode = null) {
+    if(!flowNode) {
+        flowNode = getContext(org.jenkinsci.plugins.workflow.graph.FlowNode)
+    }
+    if(flowNode instanceof org.jenkinsci.plugins.workflow.cps.nodes.StepStartNode && flowNode.typeFunctionName == 'node') {
+        // Could also check flowNode.typeDisplayFunction == 'Allocate node : Start'
+        return "/${flowNode.url}ws/"
+    }
+
+    return flowNode.parents.findResult { getNodeWsUrl(it) }
 }
