@@ -35,7 +35,10 @@ pipeline {
 		stage("get diff") {
 			steps {
 				script {
-					currentBuild.description = "Pending.... get diff"
+					pullRequest.createStatus(status: 'success',
+                         context: 'continuous-integration/jenkins/pr-merge',
+                         description: 'Pending.... get diff',
+                         targetUrl: "${env.JOB_URL}")
 					def changes = []
 					
 					if(env.CHANGE_ID) { //check if triggered via Pull Request
@@ -85,7 +88,10 @@ pipeline {
 					}
 					println("Changes : " + changes)
 					println("affectedModules : " + affectedModules)
-					currentBuild.description = "done.... get diff"
+					pullRequest.createStatus(status: 'success',
+                         context: 'continuous-integration/jenkins/pr-merge',
+                         description: 'Done.... get diff',
+                         targetUrl: "${env.JOB_URL}")
 				}
 			}
 		}
@@ -97,7 +103,10 @@ pipeline {
 			}
 			steps {
 				script {
-					currentBuild.description = "Pending.... clean modules"
+					pullRequest.createStatus(status: 'success',
+                         context: 'continuous-integration/jenkins/pr-merge',
+                         description: 'Pending.... clean modules',
+                         targetUrl: "${env.JOB_URL}")
 					
 					if(buildAll){
 						// -T 5 means we can build modules in parallel using 5 Threads, we can scale this
@@ -111,7 +120,10 @@ pipeline {
 					println("impactedModules : " + impactedModules)
 				    	println("impactedModules.size() : " + impactedModules.size())
 					println("Cleaned impacted modules")
-					currentBuild.description = "Done.... cleaned modules"
+					pullRequest.createStatus(status: 'success',
+                         context: 'continuous-integration/jenkins/pr-merge',
+                         description: 'Done.... cleaned modules',
+                         targetUrl: "${env.JOB_URL}")
 				}
 			}
 		 }
@@ -124,7 +136,10 @@ pipeline {
 			}
 			steps {
 				script {
-					currentBuild.description = "Pending.... compile modules"
+					pullRequest.createStatus(status: 'success',
+                         context: 'continuous-integration/jenkins/pr-merge',
+                         description: 'Pending.... compile all modules',
+                         targetUrl: "${env.JOB_URL}")
 					//goal = install | compile		
 					// -T 5 means we can build modules in parallel using 5 Threads, we can scale this
 					if (isUnix()) {
@@ -132,7 +147,10 @@ pipeline {
 					} else {
 						bat "mvn compile test-compile -B -T 5 -nsu"
 					}
-					currentBuild.description = "Done.... complied modules"
+					pullRequest.createStatus(status: 'success',
+                         context: 'continuous-integration/jenkins/pr-merge',
+                         description: 'Done.... complied all modules',
+                         targetUrl: "${env.JOB_URL}")
 				}
 
 			}
@@ -147,6 +165,10 @@ pipeline {
 
 			steps {
 				script {
+					pullRequest.createStatus(status: 'success',
+                         context: 'continuous-integration/jenkins/pr-merge',
+                         description: 'Pending.... compile modules',
+                         targetUrl: "${env.JOB_URL}")
 					//remove duplicate items and separate them using "," delimeter
 					affectedList = affectedModules.unique().join(",")
 					//goal = install | compile		
@@ -156,6 +178,10 @@ pipeline {
 					} else {
 						bat "mvn compile test-compile -B -T 5 -nsu -pl ${affectedList} -amd"	
 					}
+					pullRequest.createStatus(status: 'success',
+                         context: 'continuous-integration/jenkins/pr-merge',
+                         description: 'Done.... compile modules',
+                         targetUrl: "${env.JOB_URL}")
 				}
 
 			}
@@ -168,6 +194,10 @@ pipeline {
 			}
 			steps {
 				script {
+					pullRequest.createStatus(status: 'success',
+                         context: 'continuous-integration/jenkins/pr-merge',
+                         description: 'Pending.... initialise test',
+                         targetUrl: "${env.JOB_URL}")
 					// Set up List<Map<String,Closure>> describing the builds
 					def unitTestCmd = "mvn test -B -T 5 -nsu -PunitTest"
 					unitTestStages = prepareDynamicStages("Unit Test", unitTestCmd, impactedModules)
@@ -180,6 +210,11 @@ pipeline {
 					def deployITCmd = "mvn test -B -T 5 -nsu -PdeployIT"
 					deployITStages = prepareDynamicStages("Deploy IT", deployITCmd, impactedModules)
 					println("deployITStages : " + deployITStages)
+					
+					pullRequest.createStatus(status: 'success',
+                         context: 'continuous-integration/jenkins/pr-merge',
+                         description: 'Done.... initialise test',
+                         targetUrl: "${env.JOB_URL}")
 				}
 			}
 		  }
@@ -192,6 +227,10 @@ pipeline {
 			}
 			steps {
 				script {
+					pullRequest.createStatus(status: 'success',
+                         context: 'continuous-integration/jenkins/pr-merge',
+                         description: 'Pending.... verify unit test',
+                         targetUrl: "${env.JOB_URL}")
 					for (unitTests in unitTestStages) {
 					    if (runParallel) {
 						    unitTests.failFast = true
@@ -203,6 +242,11 @@ pipeline {
 					    	}
 					    }
 					}
+					
+					pullRequest.createStatus(status: 'success',
+                         context: 'continuous-integration/jenkins/pr-merge',
+                         description: 'Done.... verify unit test',
+                         targetUrl: "${env.JOB_URL}")
 				}
 
 			}
@@ -311,9 +355,9 @@ pipeline {
 				// CHANGE_ID is set only for pull requests, so it is safe to access the pullRequest global variable
 				if (env.CHANGE_ID) {
 				    pullRequest.addLabel('Build Failed')
-					pullRequest.createStatus(status: 'success',
-                         context: 'continuous-integration/jenkins/pr-merge/tests',
-                         description: 'All tests are passing',
+					pullRequest.createStatus(status: 'failure',
+                         context: 'continuous-integration/jenkins/pr-merge',
+                         description: 'Checks failed',
                          targetUrl: "${env.JOB_URL}/testResults")
 				}
 			 }
