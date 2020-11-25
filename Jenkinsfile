@@ -31,6 +31,9 @@ pipeline {
     	}
 	
 	stages {
+		stage("print env"){
+			sh 'printenv'
+		}
 		//this stage will get all the files that were modified
 		stage("get diff") {
 			steps {
@@ -434,4 +437,21 @@ void updateGithubCommitStatus(build) {
       ]
     ]
   ])
+}
+@NonCPS
+def getJsonObjects(String data){
+    return new groovy.json.JsonSlurperClassic().parseText(data)
+}
+
+def getStageFlowLogUrl(){
+    def buildDescriptionResponse = httpRequest httpMode: 'GET', url: "${env.BUILD_URL}wfapi/describe", authentication: 'mtuktarov-creds'
+    def buildDescriptionJson = getJsonObjects(buildDescriptionResponse.content)
+    def stageDescriptionId = false
+
+    buildDescriptionJson.stages.each{ it ->
+        if (it.name == env.STAGE_NAME){
+            stageDescriptionId = stageDescription.id
+        }
+    }
+return stageDescriptionId
 }
