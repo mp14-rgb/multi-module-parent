@@ -1,3 +1,6 @@
+import org.jenkinsci.plugins.workflow.graph.FlowGraphWalker
+import org.jenkinsci.plugins.workflow.graph.FlowNode
+
 def buildAll = false
 def impactedModules = []
 def affectedModules = []
@@ -35,22 +38,11 @@ pipeline {
 			steps {
 				script {
 					sh 'printenv'
-					 WorkflowRun run = Jenkins.instance.getItemByFullName("####YOUR_JOB_NAME####")._getRuns()[0]
-    FlowExecution exec = run.getExecution()
-    PipelineNodeGraphVisitor visitor = new PipelineNodeGraphVisitor(run)
-    def flowNodes = visitor.getPipelineNodes()
-
-    for (Iterator iterator = flowNodes.iterator(); iterator.hasNext();)
-    {
-        def node = iterator.next()
-        if (node.getType() == FlowNodeWrapper.NodeType.STAGE)
-        {
-               String stageName = node.getDisplayName()
-               def stageResult = node.getStatus().getResult()
-
-               println "Result of stage ${stageName} is ${stageResult}"
-        }
-    }
+					FlowGraphWalker walker = new FlowGraphWalker(currentBuild.rawBuild.getExecution())
+					    for (FlowNode flowNode: walker) {
+						// do whatever you want with flowNode
+						echo flowNode.dump()
+					    }
 				}
 			}
 		}
