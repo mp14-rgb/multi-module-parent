@@ -52,9 +52,9 @@ pipeline {
 			steps {
 				script {
 					pullRequest.createStatus(status: 'pending',
-                         context: 'continuous-integration/jenkins/pr-merge',
+                         context: 'Calculate Diff',
                          description: 'Pending.... get diff',
-                         targetUrl: "${env.JOB_URL}")
+                         targetUrl: "${env.JOB_URL}?page=pipeline")
 					sh 'printenv'
 					def changes = []
 					
