@@ -1,5 +1,10 @@
-import org.jenkinsci.plugins.workflow.graph.FlowGraphWalker
-import org.jenkinsci.plugins.workflow.graph.FlowNode
+
+import org.jenkinsci.plugins.workflow.flow.FlowExecution;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
+import io.jenkins.blueocean.rest.impl.pipeline.PipelineNodeGraphVisitor;
+
+import org.jenkinsci.plugins.workflow.graph.FlowGraphWalker;
+import org.jenkinsci.plugins.workflow.graph.FlowNode;
 
 def buildAll = false
 def impactedModules = []
@@ -38,8 +43,7 @@ pipeline {
 			steps {
 				script {
 					sh 'printenv'
-					echo currentStage.name
-					println(currentStage)
+					println(getStageFlowLogUrl())
 				}
 			}
 		}
@@ -52,7 +56,6 @@ pipeline {
                          description: 'Pending.... get diff',
                          targetUrl: "${env.JOB_URL}")
 					sh 'printenv'
-					println(getStageFlowLogUrl())
 					def changes = []
 					
 					if(env.CHANGE_ID) { //check if triggered via Pull Request
@@ -118,7 +121,6 @@ pipeline {
 			steps {
 				script {
 					sh 'printenv'
-					println(getStageFlowLogUrl())
 					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Pending.... clean modules',
