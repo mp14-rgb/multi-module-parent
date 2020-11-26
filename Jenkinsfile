@@ -464,10 +464,10 @@ def getStageFlowLogUrl(){
     def buildDescriptionResponse = httpRequest httpMode: 'GET', url: "${env.BUILD_URL}wfapi/describe", authentication: 'REST-API'
     def buildDescriptionJson = readJSON text: buildDescriptionResponse.content
     def stageDescriptionId = false
-
+	println(buildDescriptionJson)
     buildDescriptionJson.stages.each{ it ->
         if (it.name == env.STAGE_NAME){
-            stageDescriptionId = stageDescription.id
+            stageDescriptionId = it.id
         }
     }
 return stageDescriptionId
