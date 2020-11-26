@@ -465,7 +465,7 @@ def getJsonObjects(String data){
 }
 
 def getStageFlowLogUrl(){
-    def buildDescriptionResponse = httpRequest httpMode: 'GET', url: "${env.BUILD_URL}wfapi/describe", authentication: 'github'
+    def buildDescriptionResponse = httpRequest httpMode: 'GET', url: "${env.BUILD_URL}wfapi/describe", authentication: 'REST-API'
     def buildDescriptionJson = getJsonObjects(buildDescriptionResponse.content)
     def stageDescriptionId = false
 
