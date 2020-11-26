@@ -461,7 +461,7 @@ void updateGithubCommitStatus(build) {
 }
 @NonCPS
 def getJsonObjects(String data){
-    return new groovy.json.JsonSlurperClassic().parseText(data)
+    return readJSON text: data
 }
 
 def getStageFlowLogUrl(){
