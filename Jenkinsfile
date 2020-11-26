@@ -54,7 +54,7 @@ pipeline {
 					pullRequest.createStatus(status: 'pending',
                          context: 'Calculate Diff',
                          description: 'Pending.... get diff',
-                         targetUrl: "${env.JOB_URL}?page=pipeline")
+                         targetUrl: "${env.RUN_DISPLAY_URL}?page=pipeline/"+getStageFlowLogUrl())
 					sh 'printenv'
 					def changes = []
 					
