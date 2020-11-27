@@ -52,6 +52,7 @@ pipeline {
 		stage("get diff") {
 			steps {
 				script {
+					setBuildStatus ("continuous-integration/jenkins/branch", 'Checking out completed', 'SUCCESS')
 					pullRequest.createStatus(status: 'pending',
                          context: 'Calculate Diff',
                          description: 'Pending.... get diff',
@@ -458,6 +459,16 @@ def getRepoURL() {
 def getCommitSha() {
   sh "git rev-parse HEAD > .git/current-commit"
   return readFile(".git/current-commit").trim()
+}
+
+void setBuildStatus(context, message, state) {
+  step([
+      $class: "GitHubCommitStatusSetter",
+      contextSource: [$class: "ManuallyEnteredCommitContextSource", context: context],
+      errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
+      reposSource: [$class: "ManuallyEnteredRepositorySource", url: "https://octodemo.com/${getRepoSlug()}"],
+      statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]] ]
+  ]);
 }
 
 void updateGithubCommitStatus(build) {
