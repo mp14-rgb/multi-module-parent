@@ -128,6 +128,7 @@ pipeline {
 						def filedata = readJSON file:'affectedModules.json'
 						println(filedata)
 						affectedModules = filedata.get('affectedModules')
+						println("affectedModules : " + affectedModules)
 						
 					}
 					return buildAll || affectedModules.size() > 0
