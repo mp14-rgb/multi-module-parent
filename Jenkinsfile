@@ -122,6 +122,7 @@ pipeline {
 		stage('clean modules') {
 			when {
 				expression {
+					sh 'printenv'
 					unstash 'affectedModules'
 					def filedata = readJSON file:'affectedModules.json'
 					println(filedata)
@@ -130,7 +131,6 @@ pipeline {
 			}
 			steps {
 				script {
-					sh 'printenv'
 					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Pending.... clean modules',
