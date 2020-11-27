@@ -128,7 +128,6 @@ pipeline {
 						def filedata = readJSON file:'affectedModules.json'
 						println(filedata)
 						def arr = filedata.affectedModules;
-						List<String> list = new ArrayList<String>();
 						for(int i = 0; i < arr.length(); i++){
 						    affectedModules.add(arr.getString(i));
 						}
