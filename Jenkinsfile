@@ -129,7 +129,7 @@ pipeline {
 						println(filedata)
 						def arr = filedata.affectedModules;
 						for(int i = 0; i < arr.size(); i++){
-						    affectedModules.add(arr.getString(i));
+						    affectedModules.add(arr.get(i));
 						}
 						println("affectedModules : " + affectedModules)
 						
