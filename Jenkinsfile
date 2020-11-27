@@ -462,11 +462,12 @@ def getCommitSha() {
 }
 
 void setBuildStatus(context, message, state) {
+	repoUrl = getRepoURL()
   step([
       $class: "GitHubCommitStatusSetter",
       contextSource: [$class: "ManuallyEnteredCommitContextSource", context: context],
       errorHandlers: [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
-      reposSource: [$class: "ManuallyEnteredRepositorySource", url: env.GIT_URL],
+      reposSource: [$class: "ManuallyEnteredRepositorySource", url: repoUrl],
       statusResultSource: [ $class: "ConditionalStatusResultSource", results: [[$class: "AnyBuildResult", message: message, state: state]] ]
   ]);
 }
