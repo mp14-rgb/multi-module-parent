@@ -123,9 +123,13 @@ pipeline {
 			when {
 				expression {
 					sh 'printenv'
-					unstash 'affectedModules'
-					def filedata = readJSON file:'affectedModules.json'
-					println(filedata)
+					if(affectedModules.size() == 0) {
+						unstash 'affectedModules'
+						def filedata = readJSON file:'affectedModules.json'
+						println(filedata)
+						affectedModules = filedata.get('affectedModules')
+						
+					}
 					return buildAll || affectedModules.size() > 0
 				}
 			}
