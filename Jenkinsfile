@@ -24,6 +24,7 @@ pipeline {
 	agent any
 	//disable concurrent build to avoid race conditions and to save resources
 	options {
+		preserveStashes()
         	disableConcurrentBuilds()
     	}
 	
@@ -110,6 +111,7 @@ pipeline {
 					writeJSON(file: 'affectedModules.json', json: testMap, pretty: 4)
 					def filedata = readJSON file:'affectedModules.json'
     					println(filedata)
+					stash includes: 'affectedModules.json', name: 'affectedModules'
 					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Done.... get diff',
@@ -120,6 +122,9 @@ pipeline {
 		stage('clean modules') {
 			when {
 				expression {
+					unstash 'affectedModules'
+					def filedata = readJSON file:'affectedModules.json'
+					println(filedata)
 					return buildAll || affectedModules.size() > 0
 				}
 			}
