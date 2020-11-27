@@ -52,7 +52,7 @@ pipeline {
 		stage("get diff") {
 			steps {
 				script {
-					setBuildStatus ("continuous-integration/jenkins/branch", 'Checking out completed', 'SUCCESS')
+					setBuildStatus ("continuous-integration/jenkins/branch2", 'Checking out completed', 'SUCCESS')
 					pullRequest.createStatus(status: 'pending',
                          context: 'Calculate Diff',
                          description: 'Pending.... get diff',
