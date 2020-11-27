@@ -24,7 +24,7 @@ pipeline {
 	agent any
 	//disable concurrent build to avoid race conditions and to save resources
 	options {
-		preserveStashes()
+		preserveStashes(buildCount: 5)
         	disableConcurrentBuilds()
     	}
 	
