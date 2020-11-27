@@ -105,8 +105,10 @@ pipeline {
 					}
 					println("Changes : " + changes)
 					println("affectedModules : " + affectedModules)
-					writeJSON(file: 'changeSets.json', json: currentBuild.changeSets, pretty: 4)
-					def filedata = readJSON file:'changeSets.json'
+					def testMap = [:]
+					testMap.put("affectedModules", affectedModules)
+					writeJSON(file: 'affectedModules.json', json: testMap, pretty: 4)
+					def filedata = readJSON file:'affectedModules.json'
     					println(filedata)
 					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
