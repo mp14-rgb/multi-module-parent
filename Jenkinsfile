@@ -131,7 +131,9 @@ pipeline {
 						//for(int i = 0; i < arr.size(); i++){
 						//    affectedModules.add(arr.get(i))
 						//}
-						affectedModules = filedata.affectedModules.toArray()
+						filedata.affectedModules.each { module ->
+							affectedModules.add(module)
+						}
 						println("affectedModules : " + affectedModules)
 						
 					}
