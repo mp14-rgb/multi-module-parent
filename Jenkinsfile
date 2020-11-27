@@ -105,6 +105,9 @@ pipeline {
 					}
 					println("Changes : " + changes)
 					println("affectedModules : " + affectedModules)
+					writeJSON(file: 'affectedModules.json', json: affectedModules, pretty: 4)
+					def filedata = readJSON file:'affectedModules.json'
+    					println(filedata)
 					pullRequest.createStatus(status: 'pending',
                          context: 'continuous-integration/jenkins/pr-merge',
                          description: 'Done.... get diff',
