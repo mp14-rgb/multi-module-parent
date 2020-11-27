@@ -128,7 +128,7 @@ pipeline {
 						def filedata = readJSON file:'affectedModules.json'
 						println(filedata)
 						def arr = filedata.affectedModules;
-						for(int i = 0; i < arr.length(); i++){
+						for(int i = 0; i < arr.size(); i++){
 						    affectedModules.add(arr.getString(i));
 						}
 						println("affectedModules : " + affectedModules)
