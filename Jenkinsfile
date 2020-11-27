@@ -127,7 +127,7 @@ pipeline {
 						unstash 'affectedModules'
 						def filedata = readJSON file:'affectedModules.json'
 						println(filedata)
-						affectedModules = filedata.get('affectedModules')
+						affectedModules = filedata.get('affectedModules').toArray()
 						println("affectedModules : " + affectedModules)
 						
 					}
