@@ -127,6 +127,7 @@ pipeline {
 							}	
 						}						
 					}
+					println("changes : " + changes)
 					//iterate through changes
 					changes.each {c -> 
 						if(c.contains("common") || c == "pom.xml") { //if changes includes parent pom.xml and common module, we should build all modules
