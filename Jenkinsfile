@@ -34,6 +34,7 @@ pipeline {
 	//disable concurrent build to avoid race conditions and to save resources
 	options {
         	disableConcurrentBuilds()
+		skipDefaultCheckout(true)
     	}
 
 	//load tools - these should be configured in jenkins global tool configuration
@@ -42,6 +43,17 @@ pipeline {
         	jdk 'JDK8' 
     	}
 	stages {
+		stage('Declarative: Checkout SCM'){
+			steps {
+			    checkout([
+				 $class: 'GitSCM',
+				 branches: scm.branches,
+				 doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+				 extensions: scm.extensions,
+				 userRemoteConfigs: scm.userRemoteConfigs
+			    ])
+			   }
+		}
 		stage('Initialise') {
 			steps {
 				script {
@@ -115,6 +127,7 @@ pipeline {
 							}	
 						}						
 					}
+					println("changes : " + changes)
 					//iterate through changes
 					changes.each {c -> 
 						if(c.contains("common") || c == "pom.xml") { //if changes includes parent pom.xml and common module, we should build all modules
