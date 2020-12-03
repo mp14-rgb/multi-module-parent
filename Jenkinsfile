@@ -34,6 +34,7 @@ pipeline {
 	//disable concurrent build to avoid race conditions and to save resources
 	options {
         	disableConcurrentBuilds()
+		skipDefaultCheckout(true)
     	}
 
 	//load tools - these should be configured in jenkins global tool configuration
