@@ -43,6 +43,11 @@ pipeline {
     	}
 	stages {
 		stage('Checkout SCM'){
+			steps {
+			    checkout([
+			      $class: 'GitSCM'
+			     ])
+			   }
 		}
 		stage('Initialise') {
 			steps {
