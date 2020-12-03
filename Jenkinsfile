@@ -45,8 +45,12 @@ pipeline {
 		stage('Declarative: Checkout SCM'){
 			steps {
 			    checkout([
-			      $class: 'GitSCM'
-			     ])
+				 $class: 'GitSCM',
+				 branches: scm.branches,
+				 doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+				 extensions: scm.extensions,
+				 userRemoteConfigs: scm.userRemoteConfigs
+			    ])
 			   }
 		}
 		stage('Initialise') {
