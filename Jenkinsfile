@@ -42,7 +42,7 @@ pipeline {
         	jdk 'JDK8' 
     	}
 	stages {
-		stage('Checkout SCM'){
+		stage('Declarative: Checkout SCM'){
 			steps {
 			    checkout([
 			      $class: 'GitSCM'
