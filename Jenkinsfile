@@ -42,6 +42,8 @@ pipeline {
         	jdk 'JDK8' 
     	}
 	stages {
+		stage('Checkout SCM'){
+		}
 		stage('Initialise') {
 			steps {
 				script {
