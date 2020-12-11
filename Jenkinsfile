@@ -2,6 +2,7 @@ def buildAll = false
 def affectedModules = []
 def affectedList
 def goal = "package"
+
 pipeline {
 	
 	agent any
